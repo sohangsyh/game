@@ -1,0 +1,144 @@
+{
+  "scene_kit": "storeroom",
+  "art_style": "warm low-poly, flat-shaded",
+  "navigation": "tap_to_move",
+  "room": {
+    "width": 13,
+    "depth": 11,
+    "back_wall_z": -5.5,
+    "door": [
+      0,
+      0,
+      -5.4
+    ],
+    "player_start": [
+      0,
+      0,
+      1.2
+    ]
+  },
+  "stations": {
+    "gourd": [
+      -4.2,
+      0,
+      -3.4
+    ],
+    "cabinet": [
+      4.2,
+      0,
+      -3.6
+    ],
+    "basin": [
+      -3.8,
+      0,
+      2.6
+    ],
+    "scrollshelf": [
+      3.9,
+      0,
+      2.5
+    ]
+  },
+  "clues": {
+    "seedbag": [
+      -5.6,
+      0,
+      -4.6
+    ],
+    "jar": [
+      -2.6,
+      0,
+      -4.5
+    ],
+    "ladle": [
+      -5.5,
+      0,
+      -2.1
+    ],
+    "note1": [
+      -2.7,
+      0,
+      -2.4
+    ],
+    "recipe": [
+      2.7,
+      0,
+      -4.6
+    ],
+    "silk": [
+      5.6,
+      0,
+      -4.5
+    ],
+    "battlemap": [
+      5.6,
+      0,
+      -2.2
+    ],
+    "note2": [
+      2.6,
+      0,
+      -2.5
+    ],
+    "river": [
+      -5.6,
+      0,
+      1.3
+    ],
+    "peng": [
+      -2.3,
+      0,
+      3.6
+    ],
+    "note3": [
+      -5.2,
+      0,
+      4.0
+    ],
+    "tree": [
+      2.3,
+      0,
+      1.2
+    ],
+    "wildcat": [
+      5.6,
+      0,
+      1.2
+    ],
+    "yak": [
+      5.4,
+      0,
+      4.1
+    ],
+    "note4": [
+      2.1,
+      0,
+      4.0
+    ]
+  },
+  "npc_layout": {
+    "mentor": [
+      -7.8,
+      0,
+      -1.2
+    ],
+    "rival": [
+      7.8,
+      0,
+      -1.2
+    ],
+    "gatekeeper": [
+      1.5,
+      0,
+      -4.7
+    ],
+    "companion_follow": [
+      1.1,
+      0,
+      0.4
+    ]
+  },
+  "environment": {
+    "time": "dusk"
+  }
+}

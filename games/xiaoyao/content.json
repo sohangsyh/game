@@ -1,0 +1,182 @@
+{
+  "meta": {
+    "topic": "逍遙遊（節錄）",
+    "author": "莊子",
+    "language": "zh-Hant",
+    "audience": "DSE 中文科",
+    "central_thesis": "無用之用：惠子以世俗眼光判定大瓠、大樹無用；莊子指出關鍵在於如何用，而看似無用之物反能免於禍害，逍遙自在。"
+  },
+  "npc_slots": {
+    "mentor": { "character_id": "G", "display_name": "莊子", "persona": "灑脫幽默，善用寓言", "costume": ["ru_hat"] },
+    "companion": { "character_id": "O", "display_name": "小遙", "persona": "莊子的學徒，和你一起被鎖在庫房", "costume": [] },
+    "rival": { "character_id": "A", "display_name": "惠子", "persona": "莊子的辯友，堅信大而無用之物應該捨棄", "costume": ["coin"] },
+    "gatekeeper": { "character_id": "I", "display_name": "門神", "persona": "守著石門，只讓明白道理的人通過", "costume": ["lantern"] }
+  },
+  "story": {
+    "intro_rival": "這庫房裡全是大而無用的廢物！你們既然說它們有用，就自己想辦法出去吧。",
+    "intro_mentor": "惠子把你們鎖在他的庫房了。別慌，屋裡每一件「無用」的東西，都藏著出去的線索。先四處看看。",
+    "door_hint": "石門上有四個凹槽，要集齊四個字才能打開。"
+  },
+  "units": [
+    {
+      "unit_id": "u1",
+      "title": "五石之瓠",
+      "station": { "id": "gourd", "label": "大瓠" },
+      "concept": "大瓠盛水不夠堅固，剖成瓢又太淺，惠子便認為它大而無用，把它打破。莊子批評他「拙於用大」。",
+      "key_quote": "非不呺然大也，吾為其無用而掊之。",
+      "misconceptions": ["「其堅不能自舉」是指大瓠太重，人搬不動"],
+      "tags": { "has_evidence": true, "has_dilemma": false, "has_categories": false, "has_sequence": false, "bloom": "analyze" },
+      "puzzle_type": "clue_combine",
+      "clues": [
+        { "id": "seedbag", "label": "種子袋", "kind": "required", "text": "袋上寫著：「魏王貽我大瓠之種，我樹之成而實五石。」" },
+        { "id": "jar", "label": "水缸", "kind": "required", "text": "缸邊刻著：「以盛水漿，其堅不能自舉也。」用來盛水，瓠殼的硬度承受不住自身的重量。" },
+        { "id": "ladle", "label": "瓢", "kind": "required", "text": "一隻又平又淺的大瓢：「剖之以為瓢，則瓠落無所容。」甚麼都盛不住。" },
+        { "id": "note1", "label": "字條", "kind": "decoy", "text": "字條上寫：「其堅不能自舉」，意思就是大瓠太重，人根本搬不動。" }
+      ],
+      "puzzle": {
+        "prompt": "大瓠上掛著一把鎖，鎖上刻著問題：根據線索，惠子為甚麼要把大瓠打破？",
+        "options": [
+          { "text": "他認為大瓠大而無用", "correct": true },
+          { "text": "大瓠太重，搬不動", "trap": "note1", "why": "「其堅不能自舉」是說瓠殼不夠堅固，盛水後承受不了自身重量，不是說人搬不動。" },
+          { "text": "魏王下令把它銷毀", "why": "大瓠是魏王送的種子種出來的，文中沒有銷毀的命令。" },
+          { "text": "大瓠已經腐爛發臭", "why": "文中沒有提及腐爛。惠子說「吾為其無用而掊之」。" }
+        ]
+      },
+      "reward": { "char": "無", "item": "大瓠" },
+      "lines": {
+        "solved": "惠子說「非不呺然大也，吾為其無用而掊之」。但我說：「夫子固拙於用大矣！」不是大瓠沒用，是他不懂得用大的東西。",
+        "rival_taunt": "又大又空，留著幹甚麼？"
+      },
+      "hints": [
+        "三條必要線索分別說了大瓠的哪兩種用法？",
+        "盛水不夠堅固，做瓢又太淺。惠子由此得出甚麼結論？",
+        "惠子說：「吾為其無用而掊之。」"
+      ]
+    },
+    {
+      "unit_id": "u2",
+      "title": "不龜手之藥",
+      "station": { "id": "cabinet", "label": "藥櫃" },
+      "concept": "同一張防止手凍裂的藥方，宋人用來世代漂洗絲絮，只得數金；客人用來說服吳王，水戰勝越，得以封地。分別在於用法不同。",
+      "key_quote": "能不龜手一也；或以封，或不免於洴澼絖，則所用之異也。",
+      "misconceptions": ["客人的藥方比宋人的更有效", "成敗取決於運氣或君王是否慷慨"],
+      "tags": { "has_evidence": true, "has_dilemma": false, "has_categories": false, "has_pairs": true, "bloom": "analyze" },
+      "puzzle_type": "pairing",
+      "clues": [
+        { "id": "recipe", "label": "藥方", "kind": "required", "text": "藥方上寫：「宋人有善為不龜手之藥者，世世以洴澼絖為事。」" },
+        { "id": "silk", "label": "絲絮筐", "kind": "required", "text": "洴澼絖，就是在水中漂洗絲絮。宋人一家世代做這份工，所得「不過數金」。" },
+        { "id": "battlemap", "label": "水戰圖", "kind": "required", "text": "圖旁題字：「客得之，以說吳王。越有難，吳王使之將，冬與越人水戰，大敗越人，裂地而封之。」" },
+        { "id": "note2", "label": "字條", "kind": "decoy", "text": "字條上寫：客人那份藥方，一定比宋人的更靈驗，所以才能封侯。" }
+      ],
+      "puzzle": {
+        "prompt": "藥櫃的三格抽屜，各要配上正確的牌子。",
+        "rows": [
+          { "label": "宋人用藥方", "answer": 0 },
+          { "label": "客人用藥方", "answer": 1 },
+          { "label": "結果不同，是因為", "answer": 2 }
+        ],
+        "pool": [
+          { "text": "世代漂洗絲絮，不過數金" },
+          { "text": "說服吳王，水戰勝越而封地" },
+          { "text": "所用之異：用法不同" },
+          { "text": "客人的藥方效力更強", "trap": "note2", "why": "莊子說「能不龜手一也」，兩者藥效完全相同。" },
+          { "text": "吳王特別慷慨", "why": "封地是因為打勝仗，關鍵在於把藥用在水戰上。" }
+        ]
+      },
+      "reward": { "char": "用", "item": "藥方" },
+      "lines": {
+        "solved": "「能不龜手一也；或以封，或不免於洴澼絖，則所用之異也。」同一樣東西，用法不同，價值就天差地遠。",
+        "rival_taunt": "藥方好，才是硬道理！"
+      },
+      "hints": [
+        "比較宋人和客人：他們用的藥方一樣嗎？",
+        "莊子說「能不龜手一也」，藥效相同，差別在哪裡？",
+        "宋人用來漂絲絮，客人用來打水戰。答案是「所用之異」。"
+      ]
+    },
+    {
+      "unit_id": "u3",
+      "title": "浮於江湖",
+      "station": { "id": "basin", "label": "水盆" },
+      "concept": "莊子回應惠子：先批評他拙於用大，舉不龜手之藥為例，再建議把大瓠做成大樽浮於江湖，最後指他有「蓬之心」。",
+      "key_quote": "今子有五石之瓠，何不慮以為大樽而浮於江湖，而憂其瓠落無所容，則夫子猶有蓬之心也夫！",
+      "misconceptions": ["瓠落無所容的東西，只能丟棄"],
+      "tags": { "has_evidence": true, "has_dilemma": false, "has_categories": false, "has_sequence": true, "bloom": "analyze" },
+      "puzzle_type": "sequence",
+      "requires_item": "大瓠",
+      "clues": [
+        { "id": "river", "label": "江湖圖", "kind": "required", "text": "畫上題字：「何不慮以為大樽而浮於江湖？」大樽，是可以縛在身上、助人浮水的大型浮具。" },
+        { "id": "peng", "label": "蓬草", "kind": "required", "text": "一束彎曲叢生的蓬草。莊子說惠子「猶有蓬之心」，比喻心思茅塞、見識淺窄。" },
+        { "id": "note3", "label": "字條", "kind": "decoy", "text": "字條上寫：瓠落無所容，又大又淺，除了丟掉，別無他法。" }
+      ],
+      "puzzle": {
+        "prompt": "水盆邊有五個撥杆。按莊子回應惠子的次序，撥動其中四個。",
+        "steps": [
+          { "text": "批評惠子拙於用大" },
+          { "text": "舉不龜手之藥為例" },
+          { "text": "建議把大瓠做成大樽，浮於江湖" },
+          { "text": "指惠子有蓬之心" }
+        ],
+        "distractor": { "text": "勸惠子把大瓠丟掉", "trap": "note3", "why": "莊子正是反對丟掉大瓠，他建議做成大樽浮於江湖。" }
+      },
+      "reward": { "char": "之", "item": null },
+      "lines": {
+        "solved": "大瓠盛水不堅、做瓢太淺，為甚麼不把它當作大樽，浮遊於江湖之上？只憂慮它無處可容，那是心被蓬草塞住了啊。",
+        "rival_taunt": "做成浮具？真是異想天開！"
+      },
+      "hints": [
+        "莊子先說了一句總評，再舉例，然後才給建議。",
+        "總評是「夫子固拙於用大矣」，例子是宋人的藥方。",
+        "最後一步是「猶有蓬之心也夫」。"
+      ]
+    },
+    {
+      "unit_id": "u4",
+      "title": "無何有之鄉",
+      "station": { "id": "scrollshelf", "label": "竹簡架" },
+      "concept": "惠子以大樹不中繩墨比喻莊子之言大而無用。莊子以狸狌（有小用而死於罔罟）、斄牛（大而不能執鼠）作答，主張把大樹種在無何有之鄉，逍遙寢臥其下：無所可用，就不會受到傷害。",
+      "key_quote": "不夭斤斧，物無害者。無所可用，安所困苦哉？",
+      "misconceptions": ["「大而無用，衆所同去也」是莊子的話", "不成材的樹應該砍作柴薪"],
+      "tags": { "has_evidence": true, "has_dilemma": false, "has_categories": false, "has_sequence": false, "bloom": "evaluate" },
+      "puzzle_type": "spot_the_fake",
+      "clues": [
+        { "id": "tree", "label": "樗樹盆景", "kind": "required", "text": "「其大本擁腫而不中繩墨，其小枝卷曲而不中規矩；立之塗，匠者不顧。」" },
+        { "id": "wildcat", "label": "狸狌像", "kind": "required", "text": "「卑身而伏，以候敖者；東西跳梁，不辟高下，中於機辟，死於罔罟。」靈巧有用，卻因此喪命。" },
+        { "id": "yak", "label": "斄牛像", "kind": "required", "text": "「其大若垂天之雲，此能為大矣，而不能執鼠。」大有大的用處，不必以捉老鼠衡量它。" },
+        { "id": "note4", "label": "字條", "kind": "decoy", "text": "字條上寫：連莊子自己都承認：「大而無用，衆所同去也。」" }
+      ],
+      "puzzle": {
+        "prompt": "竹簡架上有四卷竹簡，都自稱寫著莊子對大樹的看法。哪一卷才是真的？",
+        "options": [
+          { "text": "樹之於無何有之鄉，逍遙乎寢臥其下；不夭斤斧，無所可用，安所困苦哉？", "correct": true },
+          { "text": "今子之言，大而無用，衆所同去也。", "trap": "note4", "why": "這是惠子批評莊子的話，不是莊子的看法。" },
+          { "text": "不中繩墨之木，宜伐為薪，物盡其用。", "why": "莊子主張讓大樹免於斧斤，而不是砍掉它。" },
+          { "text": "狸狌東西跳梁，可見有用之材，必成大器。", "why": "狸狌最後「死於罔罟」，莊子用牠說明有用反招禍害。" }
+        ]
+      },
+      "reward": { "char": "用", "item": null },
+      "lines": {
+        "solved": "狸狌有用，卻死在陷阱裡；大樹無用，斧頭反而傷不了它。把它種在廣漠之野，在樹下逍遙寢臥，還有甚麼困苦呢？",
+        "rival_taunt": "大而無用，大家都會離你而去！"
+      },
+      "hints": [
+        "先分清楚：哪些話是惠子說的，哪些是莊子說的？",
+        "「大而無用，衆所同去也」出自惠子之口。",
+        "莊子的結論是：無所可用，安所困苦哉。"
+      ]
+    }
+  ],
+  "final": {
+    "chars_order": ["無", "用", "之", "用"],
+    "arrange_prompt": "門神：「把四個字按正確次序放進凹槽，說出這間庫房的秘密。」",
+    "question": "門神：「最後一問。莊子在這兩段對話中，想說明甚麼道理？」",
+    "options": [
+      { "text": "看似無用之物，善於運用便有大用，而且能免於禍害", "correct": true },
+      { "text": "大而無用的東西應該及早捨棄", "why": "這是惠子的看法，正是莊子要反駁的。" },
+      { "text": "有用的東西最終都會被毀掉，所以應該避免有用", "why": "莊子並非否定一切用處，他強調的是如何看待和運用。" },
+      { "text": "為人應該順從君王，才能封侯", "why": "封侯只是不龜手之藥的例子，並非全文主旨。" }
+    ],
+    "explain": "「無用之用」：惠子以世俗標準判定事物無用，莊子提醒我們換個角度去用，並指出無用反能保全自身，逍遙自在。"
+  },
+  "debrief": "惠子看見的是「無用」，莊子看見的是「怎樣用」。大瓠可以浮遊江湖，大樹可以讓人逍遙寢臥：這就是無用之用。"
+}

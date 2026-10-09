@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>逍遙遊：惠子的庫房</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#121A24; --panel:rgba(18,26,37,.92); --panel-line:rgba(224,176,75,.38);
+  --paper:#F4EBD6; --ink:#16202A; --muted:#B8AD94; --gold:#E0B04B; --gold-deep:#B9862A;
+  --jade:#5FB49C; --cinnabar:#D2553F;
+  --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --sans:-apple-system,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#0E141C; --panel:rgba(14,20,29,.94); } }
+:root[data-theme="dark"]{ --bg:#0E141C; --panel:rgba(14,20,29,.94); }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{height:100%;margin:0;background:var(--bg);color:var(--paper);font-family:var(--sans);-webkit-tap-highlight-color:transparent;overflow:hidden}
+#app{position:relative;height:100%;width:100%;overflow:hidden}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+
+#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
+.col{display:flex;flex-direction:column;gap:8px}
+.col.r{align-items:flex-end}
+.chip{background:var(--panel);border:1px solid var(--panel-line);border-radius:12px;padding:8px 14px;display:flex;align-items:baseline;gap:10px}
+.chip span{font-size:12px;color:var(--muted);white-space:nowrap}
+.chip strong{font-family:var(--serif);font-weight:700;font-size:17px;white-space:nowrap}
+#timer{align-self:flex-start;font-family:var(--serif);font-weight:900;font-size:28px;line-height:1;background:var(--panel);border:1px solid var(--panel-line);border-radius:12px;padding:8px 14px;font-variant-numeric:tabular-nums;min-width:84px;text-align:center}
+#timer.low{color:var(--cinnabar);border-color:var(--cinnabar)}
+@media (prefers-reduced-motion: no-preference){ #timer.low{animation:beat 1s ease-in-out infinite} @keyframes beat{50%{transform:scale(1.06)}} }
+.scorebox{background:var(--panel);border:1px solid var(--panel-line);border-radius:12px;padding:7px 14px;display:flex;gap:16px}
+.scorebox div{display:flex;flex-direction:column;align-items:flex-end;font-size:12px;color:var(--muted)}
+.scorebox b{font-family:var(--serif);font-size:20px;color:var(--paper);font-variant-numeric:tabular-nums}
+.tool{pointer-events:auto;display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--gold);border-radius:999px;padding:6px 12px 6px 9px;font-size:13px}
+.tool svg{width:17px;height:17px;flex:none}
+.tool small{color:var(--muted);font-size:11px}
+.tool:disabled{opacity:.4;cursor:default;border-color:var(--panel-line)}
+#help{border-color:#10C77A}
+#assistBubble{position:absolute;right:12px;top:162px;width:min(320px,calc(100% - 24px));background:var(--paper);color:var(--ink);border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+#assistBubble .t{font-size:12px;color:#7A6A45;margin-bottom:4px;display:flex;justify-content:space-between;gap:8px}
+#assistBubble button{background:none;border:0;color:#7A6A45;font-size:12px;padding:0}
+
+#toast{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:min(560px,calc(100% - 20px));background:var(--panel);border:1px solid var(--panel-line);border-left:4px solid var(--gold);border-radius:0 12px 12px 0;padding:10px 14px;pointer-events:none}
+#toast.ok{border-left-color:var(--jade)} #toast.bad{border-left-color:var(--cinnabar)}
+#toast b{font-family:var(--serif);font-size:15px;display:block;margin-bottom:2px}
+#toast.ok b{color:var(--jade)} #toast.bad b{color:#F08A74}
+#toast span{font-size:14px;line-height:1.55;color:#E6DCC4}
+
+#dialog{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);width:min(760px,calc(100% - 20px));max-height:52%;overflow:auto;background:var(--panel);border:1px solid var(--panel-line);border-radius:14px;padding:14px 18px 16px}
+.who{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-weight:700;font-size:15px;color:var(--gold);margin-bottom:6px}
+.who .dot{width:12px;height:12px;border-radius:50%;flex:none}
+#line{margin:0;font-size:17px;line-height:1.75;min-height:1.75em}
+#actions{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+#actions .next{align-self:flex-end;background:var(--gold);color:var(--ink);border:0;border-radius:10px;padding:9px 20px;font-weight:600}
+
+#labels,#bubbles{position:absolute;inset:0;pointer-events:none}
+.it{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;background:var(--paper);color:var(--ink);border:1.5px solid #B9862A;border-radius:8px;padding:4px 9px;font-family:var(--serif);font-weight:700;font-size:14px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.it.carry{background:var(--gold);border-color:var(--ink);pointer-events:none}
+.it.hl{outline:3px solid #FFE38A;outline-offset:2px}
+.it.decoy{border-color:var(--cinnabar);color:var(--cinnabar);text-decoration:line-through}
+.zl{position:absolute;transform:translate(-50%,0);pointer-events:auto;border:0;border-radius:999px;padding:5px 14px;font-family:var(--serif);font-weight:700;font-size:15px;white-space:nowrap;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.zl.up{transform:translate(-50%,-100%)}
+.zl.hl{outline:3px solid #FFE38A;outline-offset:2px}
+.bub{position:absolute;transform:translate(-50%,-100%);background:var(--paper);color:var(--ink);border-radius:12px;padding:7px 12px;font-size:14px;max-width:220px;line-height:1.45;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.bub::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:var(--paper)}
+
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+#overlay.dim{background:rgba(10,15,22,.7)}
+#overlay:empty{display:none}
+.card{background:var(--paper);color:var(--ink);border-radius:16px;padding:26px 24px;width:min(560px,100%);max-height:100%;overflow:auto}
+.card h2{font-family:var(--serif);font-weight:900;font-size:26px;margin:0 0 6px;letter-spacing:.04em}
+.card p{line-height:1.75;margin:0 0 12px}
+.card .sub{color:#6F6450;font-size:14px}
+.primary{background:var(--ink);color:var(--paper);border:0;border-radius:10px;padding:11px 24px;font-weight:600;font-size:16px}
+.title{display:flex;align-items:center;gap:28px;color:var(--paper)}
+.title .v{writing-mode:vertical-rl;font-family:var(--serif);font-weight:900;font-size:clamp(60px,13vh,112px);letter-spacing:.12em;line-height:1;text-shadow:0 2px 18px rgba(0,0,0,.45)}
+.title .v.a{font-size:clamp(17px,2.4vh,22px);font-weight:500;letter-spacing:.4em;color:var(--gold);align-self:flex-start;margin-left:-14px}
+.title .side{display:flex;flex-direction:column;gap:18px;max-width:270px}
+.title .side p{font-family:var(--serif);font-size:18px;line-height:1.8;margin:0;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+.title .side .primary{background:var(--gold);color:var(--ink);align-self:flex-start}
+.cast{display:flex;flex-direction:column;gap:10px;margin:14px 0 18px}
+.cast div{display:flex;align-items:center;gap:12px}
+.cast svg{width:34px;height:34px;flex:none}
+.cast b{font-family:var(--serif)}
+.cast span{font-size:14px;color:#4C4434}
+.roundcard{text-align:center;color:var(--paper)}
+.roundcard small{font-size:14px;color:var(--gold);letter-spacing:.3em}
+.roundcard h2{font-family:var(--serif);font-weight:900;font-size:clamp(34px,6vw,54px);margin:8px 0 12px;letter-spacing:.08em}
+.roundcard p{font-size:15px;color:#E9DFC6;margin:0}
+.stars{font-size:34px;letter-spacing:.15em;color:var(--gold-deep);margin:4px 0 10px}
+.stars i{font-style:normal;color:#D9CCAE}
+.stats{display:flex;gap:18px;font-size:14px;color:#6F6450;margin-bottom:10px;flex-wrap:wrap}
+.stats b{font-size:20px;color:var(--ink);font-family:var(--serif);display:block}
+.review{list-style:none;padding:0;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.review li{border-left:3px solid var(--cinnabar);padding:2px 0 2px 12px}
+.review li.miss{border-color:var(--gold-deep)}
+.review b{font-family:var(--serif)}
+.review p{font-size:14px;margin:3px 0 0;color:#4C4434;line-height:1.6}
+@media (max-width:560px){ .chip strong{font-size:15px} #timer{font-size:24px;min-width:72px} .title{gap:14px;flex-wrap:wrap;justify-content:center} .title{flex-direction:column} .title .v{writing-mode:horizontal-tb;font-size:64px} .title .v.a{margin-left:0;align-self:center;font-size:17px;letter-spacing:.2em} .title .side{max-width:100%;align-items:center;text-align:center} .it{font-size:12px;padding:3px 7px} .title .side .primary{align-self:center} #assistBubble{top:150px} .zl{font-size:13px;padding:4px 10px} }
+
+.spot{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;background:var(--panel);border:1px solid rgba(244,235,214,.45);color:var(--paper);border-radius:999px;padding:4px 11px;font-size:13px;white-space:nowrap}
+.spot.done{border-color:var(--jade);color:#9FD9C6}
+.spot.st{background:var(--gold);color:var(--ink);border-color:var(--ink);font-family:var(--serif);font-weight:700;font-size:14px}
+.spot.st.locked{background:#6E6658;color:#E6DCC4;border-color:transparent}
+.spot.st.solved{background:var(--jade);color:#0E2A22}
+.ghost{align-self:flex-start;background:none;border:1px solid rgba(244,235,214,.3);border-radius:10px;padding:7px 14px;font-size:14px;color:var(--muted)}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;background:rgba(244,235,214,.05);border:1px solid rgba(244,235,214,.22);border-radius:10px;padding:11px 14px;font-size:16px;line-height:1.55}
+.opt:hover:not(:disabled){border-color:var(--gold);background:rgba(224,176,75,.1)}
+.opt .k{font-family:var(--serif);color:var(--gold);flex:none}
+.opt:disabled{opacity:.45;border-color:rgba(210,85,63,.6);text-decoration:line-through;cursor:default}
+.status{font-size:13px;color:#F08A74;margin:0;min-height:1em}
+.pz-row{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.pz-row b{font-size:14px;color:var(--gold);font-family:var(--serif)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chipb{background:rgba(244,235,214,.06);border:1px solid rgba(244,235,214,.28);border-radius:999px;padding:7px 12px;font-size:14px;line-height:1.4;text-align:left}
+.chipb.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.chipb.used{opacity:.35}
+.chipb.big{font-family:var(--serif);font-weight:900;font-size:24px;padding:6px 16px}
+.seqlist{margin:0 0 10px;padding-left:1.6em;display:flex;flex-direction:column;gap:4px;font-size:15px}
+.seqlist li.empty{color:var(--muted)}
+.slots{display:flex;gap:8px;margin:4px 0 12px}
+.slotc{width:52px;height:52px;border:2px dashed rgba(244,235,214,.35);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:900;font-size:26px}
+.slotc.on{border-style:solid;border-color:var(--gold);color:var(--gold)}
+#inv{display:flex;gap:6px;flex-wrap:wrap;max-width:200px}
+#inv .s{min-width:38px;height:38px;padding:0 6px;border-radius:9px;background:var(--panel);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:900;font-size:19px;color:var(--gold)}
+#inv .s.item{font-size:12px;font-weight:700;color:var(--paper);border-color:var(--panel-line)}
+.notes{list-style:none;padding:0;margin:10px 0 16px;display:flex;flex-direction:column;gap:12px}
+.notes b{font-family:var(--serif)}
+.notes p{font-size:14px;margin:4px 0 0;line-height:1.6;color:#4C4434}
+#assistBubble{top:206px}
+@media (max-width:560px){ .spot{font-size:11px;padding:3px 8px} .spot.st{font-size:12px} #assistBubble{top:196px} .opt{font-size:15px} }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="scene" aria-label="3D 遊戲場景"></canvas>
+  <div id="labels"></div>
+  <div id="bubbles"></div>
+  <header id="hud" hidden>
+    <div class="col">
+      <div class="chip"><span>密室</span><strong>惠子的庫房</strong></div>
+      <div id="timer" role="timer" aria-live="off">0:00</div>
+      <div id="inv" aria-label="物品欄"></div>
+    </div>
+    <div class="col r">
+      <div class="scorebox"><div>分數<b id="score">0</b></div><div>機關<b id="solved">0/4</b></div></div>
+      <button class="tool" id="assist" disabled aria-label="學伴提示，扣三分">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#E0B04B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>
+        學伴提示<small>−3 分</small>
+      </button>
+      <button class="tool" id="notebook"><svg viewBox="0 0 24 24" fill="none" stroke="#E0B04B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2zM9 8h6M9 12h6"/></svg>筆記本<small id="nbCount">0</small></button>
+      <button class="tool" id="help" disabled><span id="helpIcon"></span><span id="helpLabel">幫忙</span></button>
+    </div>
+  </header>
+  <div id="assistBubble" hidden role="status"></div>
+  <div id="toast" hidden role="status"><b id="toastT"></b><span id="toastD"></span></div>
+  <section id="dialog" hidden aria-live="polite">
+    <div class="who"><i class="dot" id="whoDot"></i><span id="whoName"></span></div>
+    <p id="line"></p>
+    <div id="actions"></div>
+  </section>
+  <div id="overlay"></div>
+</div>
+<script type="application/json" id="d-content">{"meta": {"topic": "逍遙遊（節錄）", "author": "莊子", "language": "zh-Hant", "audience": "DSE 中文科", "central_thesis": "無用之用：惠子以世俗眼光判定大瓠、大樹無用；莊子指出關鍵在於如何用，而看似無用之物反能免於禍害，逍遙自在。"}, "npc_slots": {"mentor": {"character_id": "G", "display_name": "莊子", "persona": "灑脫幽默，善用寓言", "costume": ["ru_hat"]}, "companion": {"character_id": "O", "display_name": "小遙", "persona": "莊子的學徒，和你一起被鎖在庫房", "costume": []}, "rival": {"character_id": "A", "display_name": "惠子", "persona": "莊子的辯友，堅信大而無用之物應該捨棄", "costume": ["coin"]}, "gatekeeper": {"character_id": "I", "display_name": "門神", "persona": "守著石門，只讓明白道理的人通過", "costume": ["lantern"]}}, "story": {"intro_rival": "這庫房裡全是大而無用的廢物！你們既然說它們有用，就自己想辦法出去吧。", "intro_mentor": "惠子把你們鎖在他的庫房了。別慌，屋裡每一件「無用」的東西，都藏著出去的線索。先四處看看。", "door_hint": "石門上有四個凹槽，要集齊四個字才能打開。"}, "units": [{"unit_id": "u1", "title": "五石之瓠", "station": {"id": "gourd", "label": "大瓠"}, "concept": "大瓠盛水不夠堅固，剖成瓢又太淺，惠子便認為它大而無用，把它打破。莊子批評他「拙於用大」。", "key_quote": "非不呺然大也，吾為其無用而掊之。", "misconceptions": ["「其堅不能自舉」是指大瓠太重，人搬不動"], "tags": {"has_evidence": true, "has_dilemma": false, "has_categories": false, "has_sequence": false, "bloom": "analyze"}, "puzzle_type": "clue_combine", "clues": [{"id": "seedbag", "label": "種子袋", "kind": "required", "text": "袋上寫著：「魏王貽我大瓠之種，我樹之成而實五石。」"}, {"id": "jar", "label": "水缸", "kind": "required", "text": "缸邊刻著：「以盛水漿，其堅不能自舉也。」用來盛水，瓠殼的硬度承受不住自身的重量。"}, {"id": "ladle", "label": "瓢", "kind": "required", "text": "一隻又平又淺的大瓢：「剖之以為瓢，則瓠落無所容。」甚麼都盛不住。"}, {"id": "note1", "label": "字條", "kind": "decoy", "text": "字條上寫：「其堅不能自舉」，意思就是大瓠太重，人根本搬不動。"}], "puzzle": {"prompt": "大瓠上掛著一把鎖，鎖上刻著問題：根據線索，惠子為甚麼要把大瓠打破？", "options": [{"text": "他認為大瓠大而無用", "correct": true}, {"text": "大瓠太重，搬不動", "trap": "note1", "why": "「其堅不能自舉」是說瓠殼不夠堅固，盛水後承受不了自身重量，不是說人搬不動。"}, {"text": "魏王下令把它銷毀", "why": "大瓠是魏王送的種子種出來的，文中沒有銷毀的命令。"}, {"text": "大瓠已經腐爛發臭", "why": "文中沒有提及腐爛。惠子說「吾為其無用而掊之」。"}]}, "reward": {"char": "無", "item": "大瓠"}, "lines": {"solved": "惠子說「非不呺然大也，吾為其無用而掊之」。但我說：「夫子固拙於用大矣！」不是大瓠沒用，是他不懂得用大的東西。", "rival_taunt": "又大又空，留著幹甚麼？"}, "hints": ["三條必要線索分別說了大瓠的哪兩種用法？", "盛水不夠堅固，做瓢又太淺。惠子由此得出甚麼結論？", "惠子說：「吾為其無用而掊之。」"]}, {"unit_id": "u2", "title": "不龜手之藥", "station": {"id": "cabinet", "label": "藥櫃"}, "concept": "同一張防止手凍裂的藥方，宋人用來世代漂洗絲絮，只得數金；客人用來說服吳王，水戰勝越，得以封地。分別在於用法不同。", "key_quote": "能不龜手一也；或以封，或不免於洴澼絖，則所用之異也。", "misconceptions": ["客人的藥方比宋人的更有效", "成敗取決於運氣或君王是否慷慨"], "tags": {"has_evidence": true, "has_dilemma": false, "has_categories": false, "has_pairs": true, "bloom": "analyze"}, "puzzle_type": "pairing", "clues": [{"id": "recipe", "label": "藥方", "kind": "required", "text": "藥方上寫：「宋人有善為不龜手之藥者，世世以洴澼絖為事。」"}, {"id": "silk", "label": "絲絮筐", "kind": "required", "text": "洴澼絖，就是在水中漂洗絲絮。宋人一家世代做這份工，所得「不過數金」。"}, {"id": "battlemap", "label": "水戰圖", "kind": "required", "text": "圖旁題字：「客得之，以說吳王。越有難，吳王使之將，冬與越人水戰，大敗越人，裂地而封之。」"}, {"id": "note2", "label": "字條", "kind": "decoy", "text": "字條上寫：客人那份藥方，一定比宋人的更靈驗，所以才能封侯。"}], "puzzle": {"prompt": "藥櫃的三格抽屜，各要配上正確的牌子。", "rows": [{"label": "宋人用藥方", "answer": 0}, {"label": "客人用藥方", "answer": 1}, {"label": "結果不同，是因為", "answer": 2}], "pool": [{"text": "世代漂洗絲絮，不過數金"}, {"text": "說服吳王，水戰勝越而封地"}, {"text": "所用之異：用法不同"}, {"text": "客人的藥方效力更強", "trap": "note2", "why": "莊子說「能不龜手一也」，兩者藥效完全相同。"}, {"text": "吳王特別慷慨", "why": "封地是因為打勝仗，關鍵在於把藥用在水戰上。"}]}, "reward": {"char": "用", "item": "藥方"}, "lines": {"solved": "「能不龜手一也；或以封，或不免於洴澼絖，則所用之異也。」同一樣東西，用法不同，價值就天差地遠。", "rival_taunt": "藥方好，才是硬道理！"}, "hints": ["比較宋人和客人：他們用的藥方一樣嗎？", "莊子說「能不龜手一也」，藥效相同，差別在哪裡？", "宋人用來漂絲絮，客人用來打水戰。答案是「所用之異」。"]}, {"unit_id": "u3", "title": "浮於江湖", "station": {"id": "basin", "label": "水盆"}, "concept": "莊子回應惠子：先批評他拙於用大，舉不龜手之藥為例，再建議把大瓠做成大樽浮於江湖，最後指他有「蓬之心」。", "key_quote": "今子有五石之瓠，何不慮以為大樽而浮於江湖，而憂其瓠落無所容，則夫子猶有蓬之心也夫！", "misconceptions": ["瓠落無所容的東西，只能丟棄"], "tags": {"has_evidence": true, "has_dilemma": false, "has_categories": false, "has_sequence": true, "bloom": "analyze"}, "puzzle_type": "sequence", "requires_item": "大瓠", "clues": [{"id": "river", "label": "江湖圖", "kind": "required", "text": "畫上題字：「何不慮以為大樽而浮於江湖？」大樽，是可以縛在身上、助人浮水的大型浮具。"}, {"id": "peng", "label": "蓬草", "kind": "required", "text": "一束彎曲叢生的蓬草。莊子說惠子「猶有蓬之心」，比喻心思茅塞、見識淺窄。"}, {"id": "note3", "label": "字條", "kind": "decoy", "text": "字條上寫：瓠落無所容，又大又淺，除了丟掉，別無他法。"}], "puzzle": {"prompt": "水盆邊有五個撥杆。按莊子回應惠子的次序，撥動其中四個。", "steps": [{"text": "批評惠子拙於用大"}, {"text": "舉不龜手之藥為例"}, {"text": "建議把大瓠做成大樽，浮於江湖"}, {"text": "指惠子有蓬之心"}], "distractor": {"text": "勸惠子把大瓠丟掉", "trap": "note3", "why": "莊子正是反對丟掉大瓠，他建議做成大樽浮於江湖。"}}, "reward": {"char": "之", "item": null}, "lines": {"solved": "大瓠盛水不堅、做瓢太淺，為甚麼不把它當作大樽，浮遊於江湖之上？只憂慮它無處可容，那是心被蓬草塞住了啊。", "rival_taunt": "做成浮具？真是異想天開！"}, "hints": ["莊子先說了一句總評，再舉例，然後才給建議。", "總評是「夫子固拙於用大矣」，例子是宋人的藥方。", "最後一步是「猶有蓬之心也夫」。"]}, {"unit_id": "u4", "title": "無何有之鄉", "station": {"id": "scrollshelf", "label": "竹簡架"}, "concept": "惠子以大樹不中繩墨比喻莊子之言大而無用。莊子以狸狌（有小用而死於罔罟）、斄牛（大而不能執鼠）作答，主張把大樹種在無何有之鄉，逍遙寢臥其下：無所可用，就不會受到傷害。", "key_quote": "不夭斤斧，物無害者。無所可用，安所困苦哉？", "misconceptions": ["「大而無用，衆所同去也」是莊子的話", "不成材的樹應該砍作柴薪"], "tags": {"has_evidence": true, "has_dilemma": false, "has_categories": false, "has_sequence": false, "bloom": "evaluate"}, "puzzle_type": "spot_the_fake", "clues": [{"id": "tree", "label": "樗樹盆景", "kind": "required", "text": "「其大本擁腫而不中繩墨，其小枝卷曲而不中規矩；立之塗，匠者不顧。」"}, {"id": "wildcat", "label": "狸狌像", "kind": "required", "text": "「卑身而伏，以候敖者；東西跳梁，不辟高下，中於機辟，死於罔罟。」靈巧有用，卻因此喪命。"}, {"id": "yak", "label": "斄牛像", "kind": "required", "text": "「其大若垂天之雲，此能為大矣，而不能執鼠。」大有大的用處，不必以捉老鼠衡量它。"}, {"id": "note4", "label": "字條", "kind": "decoy", "text": "字條上寫：連莊子自己都承認：「大而無用，衆所同去也。」"}], "puzzle": {"prompt": "竹簡架上有四卷竹簡，都自稱寫著莊子對大樹的看法。哪一卷才是真的？", "options": [{"text": "樹之於無何有之鄉，逍遙乎寢臥其下；不夭斤斧，無所可用，安所困苦哉？", "correct": true}, {"text": "今子之言，大而無用，衆所同去也。", "trap": "note4", "why": "這是惠子批評莊子的話，不是莊子的看法。"}, {"text": "不中繩墨之木，宜伐為薪，物盡其用。", "why": "莊子主張讓大樹免於斧斤，而不是砍掉它。"}, {"text": "狸狌東西跳梁，可見有用之材，必成大器。", "why": "狸狌最後「死於罔罟」，莊子用牠說明有用反招禍害。"}]}, "reward": {"char": "用", "item": null}, "lines": {"solved": "狸狌有用，卻死在陷阱裡；大樹無用，斧頭反而傷不了它。把它種在廣漠之野，在樹下逍遙寢臥，還有甚麼困苦呢？", "rival_taunt": "大而無用，大家都會離你而去！"}, "hints": ["先分清楚：哪些話是惠子說的，哪些是莊子說的？", "「大而無用，衆所同去也」出自惠子之口。", "莊子的結論是：無所可用，安所困苦哉。"]}], "final": {"chars_order": ["無", "用", "之", "用"], "arrange_prompt": "門神：「把四個字按正確次序放進凹槽，說出這間庫房的秘密。」", "question": "門神：「最後一問。莊子在這兩段對話中，想說明甚麼道理？」", "options": [{"text": "看似無用之物，善於運用便有大用，而且能免於禍害", "correct": true}, {"text": "大而無用的東西應該及早捨棄", "why": "這是惠子的看法，正是莊子要反駁的。"}, {"text": "有用的東西最終都會被毀掉，所以應該避免有用", "why": "莊子並非否定一切用處，他強調的是如何看待和運用。"}, {"text": "為人應該順從君王，才能封侯", "why": "封侯只是不龜手之藥的例子，並非全文主旨。"}], "explain": "「無用之用」：惠子以世俗標準判定事物無用，莊子提醒我們換個角度去用，並指出無用反能保全自身，逍遙自在。"}, "debrief": "惠子看見的是「無用」，莊子看見的是「怎樣用」。大瓠可以浮遊江湖，大樹可以讓人逍遙寢臥：這就是無用之用。"}</script>
+<script type="application/json" id="d-world">{"scene_kit": "storeroom", "art_style": "warm low-poly, flat-shaded", "navigation": "tap_to_move", "room": {"width": 13, "depth": 11, "back_wall_z": -5.5, "door": [0, 0, -5.4], "player_start": [0, 0, 1.2]}, "stations": {"gourd": [-4.2, 0, -3.4], "cabinet": [4.2, 0, -3.6], "basin": [-3.8, 0, 2.6], "scrollshelf": [3.9, 0, 2.5]}, "clues": {"seedbag": [-5.6, 0, -4.6], "jar": [-2.6, 0, -4.5], "ladle": [-5.5, 0, -2.1], "note1": [-2.7, 0, -2.4], "recipe": [2.7, 0, -4.6], "silk": [5.6, 0, -4.5], "battlemap": [5.6, 0, -2.2], "note2": [2.6, 0, -2.5], "river": [-5.6, 0, 1.3], "peng": [-2.3, 0, 3.6], "note3": [-5.2, 0, 4.0], "tree": [2.3, 0, 1.2], "wildcat": [5.6, 0, 1.2], "yak": [5.4, 0, 4.1], "note4": [2.1, 0, 4.0]}, "npc_layout": {"mentor": [-7.8, 0, -1.2], "rival": [7.8, 0, -1.2], "gatekeeper": [1.5, 0, -4.7], "companion_follow": [1.1, 0, 0.4]}, "environment": {"time": "dusk"}}</script>
+<script type="application/json" id="d-game">{"mode": "escape", "time_limit_min": null, "stations": [{"unit_id": "u1", "station_id": "gourd", "puzzle_type": "clue_combine", "unlocked_at_start": true, "unlocks": ["u3"], "requires_clues": "all_required", "requires_item": null, "wrong_cooldown_sec": 5, "force_hint_after": 3}, {"unit_id": "u2", "station_id": "cabinet", "puzzle_type": "pairing", "unlocked_at_start": true, "unlocks": ["u4"], "requires_clues": "all_required", "requires_item": null, "wrong_cooldown_sec": 5, "force_hint_after": 3}, {"unit_id": "u3", "station_id": "basin", "puzzle_type": "sequence", "unlocked_at_start": false, "unlocks": [], "requires_clues": "all_required", "requires_item": "大瓠", "wrong_cooldown_sec": 5, "force_hint_after": 3}, {"unit_id": "u4", "station_id": "scrollshelf", "puzzle_type": "spot_the_fake", "unlocked_at_start": false, "unlocks": [], "requires_clues": "all_required", "requires_item": null, "wrong_cooldown_sec": 5, "force_hint_after": 3}], "final_door": {"speaker": "gatekeeper", "arrange": true, "question": true}, "scoring": {"station_base": 25, "wrong_penalty": 5, "station_min": 10, "hint_penalty": 3, "final_base": 30}, "companion_assist": {"uses_per_station": 1}, "inventory_slots": 6}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>/* OpenMAIC-GamePlay shared engine v0.2
+   Renderer, toon materials, scene-kit helpers, environment presets,
+   character factory with procedural animation, camera, 3D-anchored UI,
+   dialog, assistant bubble and overlays. Game modes build on window.ENG. */
+(function(){
+"use strict";
+const E={};window.ENG=E;
+const RM=E.RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=E.$=id=>document.getElementById(id);
+E.sleep=ms=>new Promise(r=>setTimeout(r,ms));
+E.NUM=['一','二','三','四','五','六','七','八'];
+
+/* renderer */
+let canvas,renderer,scene,camera;
+E.portrait=false;
+E.init=function(opts){
+  const sk=document.createElement('style');sk.textContent='.skipbtn{align-self:flex-start;background:none;border:1px dashed rgba(244,235,214,.4);border-radius:10px;padding:6px 12px;font-size:13px;color:#B8AD94;cursor:pointer}.skipbtn:hover{color:#F4EBD6;border-color:#E0B04B}';document.head.appendChild(sk);
+  canvas=E.canvas=opts.canvas;
+  renderer=E.renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  scene=E.scene=new THREE.Scene();
+  camera=E.camera=new THREE.PerspectiveCamera(46,1,.1,500);
+  E.hemi=new THREE.HemisphereLight(0xffffff,0x556644,.9);scene.add(E.hemi);
+  E.sun=new THREE.DirectionalLight(0xffffff,.9);E.sun.position.set(12,22,10);scene.add(E.sun);
+  scene.fog=new THREE.Fog(0xBFDDE8,40,170);scene.background=new THREE.Color(0xBFDDE8);
+  E.onResize=opts.onResize||null;E.onFrame=opts.onFrame||null;
+  addEventListener('resize',resize);resize();
+};
+function resize(){
+  const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight;
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=camera.aspect<.85?54:46;camera.updateProjectionMatrix();
+  const p=camera.aspect<.85;const changed=p!==E.portrait;E.portrait=p;if(E.onResize)E.onResize(changed);
+}
+
+/* materials & primitives */
+let gm=null;const mats={};
+E.M=function(hex,o){
+  if(!gm){gm=new THREE.DataTexture(new Uint8Array([92,165,232]),3,1,THREE.LuminanceFormat);gm.minFilter=gm.magFilter=THREE.NearestFilter;gm.generateMipmaps=false;gm.needsUpdate=true;}
+  const k=hex+(o?JSON.stringify(o):'');if(!mats[k])mats[k]=new THREE.MeshToonMaterial(Object.assign({color:hex,gradientMap:gm},o||{}));return mats[k];
+};
+E.mesh=function(geo,mat,x,y,z,parent){const m=new THREE.Mesh(geo,mat);m.position.set(x||0,y||0,z||0);if(parent)parent.add(m);return m;};
+E.box=function(w,h,d,c,x,y,z,p){return E.mesh(new THREE.BoxGeometry(w,h,d),E.M(c),x,y,z,p);};
+E.rng=function(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};};
+E.shuffle=function(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
+let RG=null;E.roofGeo=()=>{if(!RG){RG=new THREE.ConeGeometry(1,1,4);RG.rotateY(Math.PI/4);}return RG;};
+E.house=function(parent,x,z,w,d,h,wall,roof,ry){
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry||0;parent.add(g);
+  E.box(w,h,d,wall,0,h/2,0,g);E.box(w+.12,.18,d+.12,0x6E4A32,0,h+.05,0,g);
+  const rf=E.mesh(E.roofGeo(),E.M(roof),0,h+.62,0,g);rf.scale.set((w/2+.45)/.707,1.15,(d/2+.45)/.707);
+  E.box(.7,1.3,.06,0x3B2A22,0,.65,d/2+.03,g);return g;
+};
+E.tree=function(parent,x,z,s,kind,canopy){
+  const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);parent.add(g);
+  E.mesh(new THREE.CylinderGeometry(.13,.18,1.1,6),E.M(0x7A5236),0,.55,0,g);
+  if(kind==='pine'){E.mesh(new THREE.ConeGeometry(.9,1.5,7),E.M(0x3E6B4E,{flatShading:true}),0,1.5,0,g);E.mesh(new THREE.ConeGeometry(.65,1.2,7),E.M(0x4A7C59,{flatShading:true}),0,2.2,0,g);}
+  else E.mesh(new THREE.IcosahedronGeometry(.95,0),E.M(canopy||0x6FA35A,{flatShading:true}),0,1.75,0,g);
+  return g;
+};
+E.lanterns=[];
+E.lantern=function(parent,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);parent.add(g);
+  const b=E.mesh(new THREE.SphereGeometry(.5,12,10),E.M(0xC8452F,{emissive:0x7A1E10}),0,0,0,g);b.scale.set(.28,.34,.28);
+  E.mesh(new THREE.CylinderGeometry(.09,.09,.06,8),E.M(0xE0B04B),0,.19,0,g);E.mesh(new THREE.CylinderGeometry(.09,.09,.06,8),E.M(0xE0B04B),0,-.19,0,g);E.lanterns.push(b);return g;};
+
+/* environment */
+E.ENV={
+  morning:{sky:0xB9D6E2,hs:0xF4ECDC,hg:0x5C6E4C,hi:.72,sc:0xFFE2B0,si:.75,sp:[12,22,10]},
+  dusk:{sky:0xE6B08A,hs:0xFFD2A8,hg:0x6A5A4A,hi:.78,sc:0xFF9E5E,si:.9,sp:[-18,9,6]},
+  overcast:{sky:0xA7B0AE,hs:0xD9DED9,hg:0x5E6658,hi:.85,sc:0xDDE3E0,si:.45,sp:[4,20,6]},
+  night:{sky:0x1D2A44,hs:0x8EA2CC,hg:0x2B2E3A,hi:.55,sc:0xA9BCEB,si:.38,sp:[-8,18,-6]}
+};
+const env=E.env={cur:{sky:new THREE.Color(),hs:new THREE.Color(),hg:new THREE.Color(),sc:new THREE.Color(),hi:1,si:1},tgt:null,pulse:0,pulseColor:new THREE.Color(0xFFD27A),dim:0};
+E.setEnv=function(name,instant){const e=E.ENV[name];env.tgt=e;if(instant){env.cur.sky.set(e.sky);env.cur.hs.set(e.hs);env.cur.hg.set(e.hg);env.cur.sc.set(e.sc);env.cur.hi=e.hi;env.cur.si=e.si;}};
+E.flash=function(good,color){env.pulse=1;env.pulseColor.set(color!=null?color:(good?0xFFD27A:0x2A2440));};
+const dimColor=new THREE.Color(0x4E4A58),tmpC=new THREE.Color(),sunT=new THREE.Vector3();
+function updateEnv(dt){
+  const e=env.tgt;if(!e)return;const k=Math.min(1,dt*1.4);
+  env.cur.sky.lerp(tmpC.set(e.sky),k);env.cur.hs.lerp(tmpC.set(e.hs),k);env.cur.hg.lerp(tmpC.set(e.hg),k);env.cur.sc.lerp(tmpC.set(e.sc),k);
+  env.cur.hi+=(e.hi-env.cur.hi)*k;env.cur.si+=(e.si-env.cur.si)*k;sunT.set(e.sp[0],e.sp[1],e.sp[2]);E.sun.position.lerp(sunT,k);
+  const dim=env.dim*.38;const sky=env.cur.sky.clone().lerp(dimColor,dim);
+  env.pulse*=Math.pow(.25,dt);if(env.pulse>.01)sky.lerp(env.pulseColor,env.pulse*.35);
+  scene.background.copy(sky);scene.fog.color.copy(sky);
+  E.hemi.color.copy(env.cur.hs);E.hemi.groundColor.copy(env.cur.hg);E.hemi.intensity=env.cur.hi*(1-dim*.5)+env.pulse*.25;
+  E.sun.color.copy(env.cur.sc);E.sun.intensity=env.cur.si*(1-dim*.6);
+  const night=env.tgt===E.ENV.night;E.lanterns.forEach(l=>l.material.emissive.setHex(night?0xD8501E:0x7A1E10));
+}
+
+/* characters: slot + skin; every skin follows the character spec (body, 2 eyes, 2 legs) */
+E.PAL={G:[0xFF8A1C,0xD9631A],O:[0x10C77A,0x0A9E5E],A:[0x1677E8,0x0F55B8],I:[0xFDD015,0xE5A80E],P:[0xE8577E,0xC23E63]};
+E.hex=n=>'#'+n.toString(16).padStart(6,'0');
+const NAVY=0x0B1F5E;
+function rrect(w,h,r){const s=new THREE.Shape();s.moveTo(-w+r,0);s.lineTo(w-r,0);s.quadraticCurveTo(w,0,w,r);s.lineTo(w,h-r);s.quadraticCurveTo(w,h,w-r,h);s.lineTo(-w+r,h);s.quadraticCurveTo(-w,h,-w,h-r);s.lineTo(-w,r);s.quadraticCurveTo(-w,0,-w+r,0);return s;}
+function shapeFor(id){
+  const S=[];let eyes;
+  if(id==='A'){const s=new THREE.Shape();s.moveTo(-.54,0);s.lineTo(.54,0);s.lineTo(0,.95);s.closePath();S.push(s);eyes=[[-.14,.3,.13],[.14,.3,.13]];}
+  if(id==='I'){S.push(rrect(.27,.96,.05));eyes=[[-.15,.64,.15],[.15,.64,.15]];}
+  if(id==='P'){S.push(rrect(.3,.8,.28));eyes=[[-.12,.56,.12],[.12,.56,.12]];}
+  if(id==='G'){const s=new THREE.Shape(),R=.46,r=.26,cy=.47,a0=.62,a1=Math.PI*2-.72;s.absarc(0,cy,R,a0,a1,false);s.absarc(0,cy,r,a1,a0,true);S.push(s);
+    const t=new THREE.Shape();const P=[[.14,.62],[.62,.62],[.62,.14],[.5,.14],[.5,.42],[.27,.19],[.18,.28],[.41,.5],[.14,.5]];t.moveTo(P[0][0],P[0][1]);P.slice(1).forEach(p=>t.lineTo(p[0],p[1]));t.closePath();S.push(t);
+    eyes=[[-.16,.88,.13],[.1,.88,.13]];}
+  if(id==='O'){const s=new THREE.Shape(),cy=.46;s.absarc(0,cy,.44,0,Math.PI*2,false);const hole=new THREE.Path();hole.absarc(0,cy,.25,0,Math.PI*2,true);s.holes.push(hole);S.push(s);eyes=[[-.3,.78,.13],[-.05,.88,.13]];}
+  return {S,eyes};
+}
+E.chars={};
+E.makeChar=function(slot,id,costume){
+  const [col,dk]=E.PAL[id];const {S,eyes}=shapeFor(id);const M=E.M,mesh=E.mesh,box=E.box;
+  const root=new THREE.Group();scene.add(root);
+  const hip=new THREE.Group();hip.position.y=.47;root.add(hip);const body=new THREE.Group();hip.add(body);
+  S.forEach(s=>{const g=new THREE.ExtrudeGeometry(s,{depth:.26,bevelEnabled:true,bevelThickness:.05,bevelSize:.035,bevelSegments:3,curveSegments:28});g.translate(0,0,-.13);mesh(g,M(col),0,0,0,body);});
+  const eyeObjs=eyes.map(([x,y,r])=>{const g=new THREE.Group();g.position.set(x,y,.2);body.add(g);
+    const o=mesh(new THREE.CylinderGeometry(r+.03,r+.03,.03,28),M(col),0,0,-.012,g);o.rotation.x=Math.PI/2;
+    const w=mesh(new THREE.CylinderGeometry(r,r,.035,28),new THREE.MeshBasicMaterial({color:0xffffff}),0,0,.006,g);w.rotation.x=Math.PI/2;
+    const p=mesh(new THREE.CylinderGeometry(r*.56,r*.56,.03,24),new THREE.MeshBasicMaterial({color:NAVY}),0,0,.03,g);p.rotation.x=Math.PI/2;return {g,p,x,y,r};});
+  const legs=[-1,1].map(sd=>{const piv=new THREE.Group();piv.position.set(sd*.13,.47,0);root.add(piv);
+    box(.115,.44,.125,col,0,-.22,0,piv);box(.118,.07,.128,dk,0,-.06,0,piv);
+    const f=mesh(new THREE.SphereGeometry(.5,14,10),M(col),sd*.07,-.44,.04,piv);f.scale.set(.34,.2,.3);return piv;});
+  const sh=mesh(new THREE.CircleGeometry(.48,24),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.2,depthWrite:false}),0,.02,0,root);sh.rotation.x=-Math.PI/2;
+  const c={slot,id,root,hip,body,eyes:eyeObjs,legs,target:new THREE.Vector3(),speed:3,phase:Math.random()*6,blinkAt:1+Math.random()*3,blinkT:0,emote:null,emoteT:0,talk:false,face:null,lookAt:null,onArrive:null};
+  root.scale.setScalar(1.25);
+  const bb=new THREE.Box3().setFromObject(body);const topY=bb.max.y;
+  (costume||[]).forEach(k=>{
+    if(k==='goggles'){eyeObjs.forEach(e=>{const r=mesh(new THREE.TorusGeometry(e.r+.05,.025,8,24),M(0x2F4A6A),e.x,e.y,.24,body);const l=mesh(new THREE.CircleGeometry(e.r+.04,24),new THREE.MeshBasicMaterial({color:0x9FE8FF,transparent:true,opacity:.28,depthWrite:false}),e.x,e.y,.255,body);});
+      const y=eyeObjs[0].y;box(Math.abs(eyeObjs[1].x-eyeObjs[0].x)+.1,.03,.02,0x2F4A6A,(eyeObjs[0].x+eyeObjs[1].x)/2,y,.24,body);}
+    if(k==='cap'){const d=mesh(new THREE.SphereGeometry(.17,14,8,0,Math.PI*2,0,Math.PI/2),M(0xE0574A),0,topY-.04,0,body);d.scale.set(1,.8,1);box(.3,.025,.18,0xC23E33,0,topY-.03,.17,body);}
+    if(k==='ru_hat'){box(.5,.04,.28,0x2A2A33,-.03,1.06,0,body);box(.22,.13,.2,0x2A2A33,-.03,1.14,0,body);}
+    if(k==='coin'){const cn=mesh(new THREE.CylinderGeometry(.09,.09,.03,20),M(0xE8B93A,{emissive:0x4A3000}),0,.12,.205,body);cn.rotation.x=Math.PI/2;box(.04,.04,.035,0x3A2A10,0,.12,.225,body);}
+    if(k==='tie'){box(.1,.05,.03,0x1E2A44,0,.36,.21,body);const t=box(.08,.22,.03,0x2F4A8A,0,.22,.21,body);}
+    if(k==='hood'){const hd=mesh(new THREE.ConeGeometry(.32,.36,4),M(0x2A2F3A,{flatShading:true}),0,1.05,0,body);hd.rotation.y=Math.PI/4;}
+    if(k==='beacon'){const lg=new THREE.Group();lg.position.set(0,1.32,0);body.add(lg);E.mesh(new THREE.CylinderGeometry(.12,.14,.07,12),M(0x4A4F58),0,-.04,0,lg);
+      const dome=mesh(new THREE.SphereGeometry(.12,14,8,0,Math.PI*2,0,Math.PI/2),M(0x3FD08A,{emissive:0x1AA060}),0,0,0,lg);
+      const pl=new THREE.PointLight(0x7CFFC0,1,8,1.5);lg.add(pl);c.lamp={g:lg,mat:dome.material.clone(),light:pl,beacon:true,baseY:1.32};dome.material=c.lamp.mat;}
+    if(k==='lantern'){const lg=new THREE.Group();lg.position.set(.55,1.35,0);root.add(lg);
+      const lb=mesh(new THREE.SphereGeometry(.5,14,10),M(0xC8452F,{emissive:0xFF7A2A}),0,0,0,lg);lb.scale.set(.3,.36,.3);
+      mesh(new THREE.CylinderGeometry(.1,.1,.06,10),M(0xE0B04B),0,.2,0,lg);mesh(new THREE.CylinderGeometry(.1,.1,.06,10),M(0xE0B04B),0,-.2,0,lg);
+      const pl=new THREE.PointLight(0xFFB050,1,9,1.5);lg.add(pl);c.lamp={g:lg,mat:lb.material.clone(),light:pl};lb.material=c.lamp.mat;}
+  });
+  E.chars[slot]=c;return c;
+};
+E.emote=function(c,type){c.emote=type;c.emoteT=0;};
+E.lookFocus=null;E.lampValue=()=>.6;
+const tv=new THREE.Vector3(),tv2=new THREE.Vector3(),tv3=new THREE.Vector3();
+function updateChar(c,dt,t){
+  const p=c.root.position;tv.copy(c.target).sub(p);tv.y=0;const dist=tv.length();let moving=false;
+  if(dist>.04){moving=true;p.addScaledVector(tv.normalize(),Math.min(dist,c.speed*dt));}
+  else if(c.onArrive){const f=c.onArrive;c.onArrive=null;f();}
+  const yawT=moving?Math.atan2(tv.x,tv.z):(c.face!=null?c.face:Math.atan2(camera.position.x-p.x,camera.position.z-p.z));
+  let dy=yawT-c.root.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));c.root.rotation.y+=dy*Math.min(1,dt*8);
+  if(moving)c.phase+=dt*11;else c.phase+=(Math.round(c.phase/Math.PI)*Math.PI-c.phase)*Math.min(1,dt*10);
+  const sw=Math.sin(c.phase)*(moving?.6:0);c.legs[0].rotation.x=sw;c.legs[1].rotation.x=-sw;
+  let by=moving?Math.abs(Math.sin(c.phase))*.06:Math.sin(t*2+c.phase)*.008,sx=1,sy=1,rz=0;
+  if(c.talk){const k=Math.sin(t*15)*.045;sy+=k;sx-=k*.6;}
+  if(c.emote){c.emoteT+=dt;const e=c.emoteT;
+    if(c.emote==='hop')by+=Math.max(0,Math.sin(e*9))*.35*Math.max(0,1-e/1.1);
+    if(c.emote==='shake')rz=Math.sin(e*28)*.12*Math.max(0,1-e/.8);
+    if(c.emote==='slump'){const f=Math.max(0,1-Math.max(0,e-1.2)/.6);sy-=.12*Math.sin(Math.min(1,e/.5)*Math.PI/2)*f;sx+=.06*f;}
+    if(e>1.9)c.emote=null;}
+  c.hip.position.y=.47+by;c.body.scale.set(sx,sy,1);c.body.rotation.z=rz;
+  c.blinkAt-=dt;if(c.blinkAt<0){c.blinkT=.14;c.blinkAt=2+Math.random()*3.5;}
+  let bl=1;if(c.blinkT>0){c.blinkT-=dt;bl=Math.max(.08,Math.abs(c.blinkT/.07-1));}
+  let look;if(c.lookAt)look=tv2.copy(c.lookAt);else if(E.lookFocus&&E.lookFocus!==c)look=tv2.copy(E.lookFocus.root.position).add(tv3.set(0,1.3,0));else look=tv2.copy(camera.position);
+  c.root.updateMatrixWorld();const loc=c.body.worldToLocal(look.clone());
+  c.eyes.forEach(e=>{e.g.scale.y=bl;const v=tv3.set(loc.x-e.x,loc.y-e.y,loc.z-.2).normalize();e.p.position.x=v.x*e.r*.42;e.p.position.y=v.y*e.r*.42;});
+  if(c.lamp){const b=E.lampValue();c.lamp.light.intensity=.25+b*1.9;if(c.lamp.beacon){c.lamp.mat.emissive.setRGB(.9-b*.8,.15+b*.6,.1+b*.3);c.lamp.light.color.setRGB(1-b*.5,.3+b*.7,.3+b*.45);}else{c.lamp.mat.emissive.setRGB(.25+b*.75,.12+b*.36,.04);c.lamp.g.position.y=1.35+Math.sin(t*1.6)*.06;c.lamp.g.rotation.z=Math.sin(t*1.3)*.08;}}
+}
+
+/* camera */
+const cam=E.cam={p0:new THREE.Vector3(),p1:new THREE.Vector3(),l0:new THREE.Vector3(),l1:new THREE.Vector3(),look:new THREE.Vector3(),t:1,dur:1,res:null,idle:null};
+const par={x:0,y:0,cx:0,cy:0};E.parallax=1;
+addEventListener('pointermove',e=>{par.x=e.clientX/innerWidth-.5;par.y=e.clientY/innerHeight-.5;});
+E.camTo=function(pos,look,dur){cam.p0.copy(camera.position);cam.l0.copy(cam.look);cam.p1.copy(pos);cam.l1.copy(look);cam.t=0;cam.dur=RM?.01:dur;return new Promise(r=>cam.res=r);};
+E.camSet=function(pos,look){camera.position.copy(pos);cam.look.copy(look);cam.t=1;};
+function updateCam(dt,t){
+  if(cam.t<1){cam.t=Math.min(1,cam.t+dt/cam.dur);const k=cam.t*cam.t*(3-2*cam.t);camera.position.lerpVectors(cam.p0,cam.p1,k);cam.look.lerpVectors(cam.l0,cam.l1,k);if(cam.t>=1&&cam.res){const r=cam.res;cam.res=null;r();}}
+  else if(cam.idle)cam.idle(t);
+  par.cx+=(par.x-par.cx)*Math.min(1,dt*3);par.cy+=(par.y-par.cy)*Math.min(1,dt*3);const pk=RM?0:E.parallax;
+  camera.lookAt(cam.look.x+par.cx*.6*pk,cam.look.y-par.cy*.3*pk,cam.look.z);
+}
+
+/* 3D-anchored UI */
+const pv=new THREE.Vector3();
+E.project=function(v,el){pv.copy(v).project(camera);if(pv.z>1||Math.abs(pv.x)>1.15||Math.abs(pv.y)>1.15){el.style.visibility='hidden';return;}
+  el.style.visibility='';el.style.left=((pv.x+1)/2*canvas.clientWidth)+'px';el.style.top=((1-pv.y)/2*canvas.clientHeight)+'px';};
+const bubbles=[];
+E.floatBubble=function(c,text,ms){const el=document.createElement('div');el.className='bub';el.textContent=text;$('bubbles').appendChild(el);const b={c,el};bubbles.push(b);
+  setTimeout(()=>{el.remove();const i=bubbles.indexOf(b);if(i>=0)bubbles.splice(i,1);},ms||3000);};
+E.anchors=[];
+
+/* loop */
+const clock=E.clock=new THREE.Clock();
+function frame(){
+  const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
+  updateEnv(dt);updateCam(dt,t);
+  Object.values(E.chars).forEach(c=>updateChar(c,dt,t));
+  if(E.onFrame)E.onFrame(dt,t);
+  bubbles.forEach(b=>E.project(tv.copy(b.c.root.position).add(tv2.set(0,2.35,0)),b.el));
+  E.anchors.forEach(a=>{if(!a.el.hidden)E.project(a.pos,a.el);});
+  renderer.render(scene,camera);requestAnimationFrame(frame);
+}
+E.start=()=>requestAnimationFrame(frame);
+
+/* dialog */
+E.SPK={};let typing=null;
+E.setTalker=function(key){Object.values(E.chars).forEach(c=>c.talk=false);E.lookFocus=null;const c=E.chars[key];if(c){c.talk=true;E.lookFocus=c;}};
+E.showLine=function(key,text,quote){
+  const d=$('dialog');d.hidden=false;const s=E.SPK[key]||{name:key,col:'#F4EBD6'};$('whoName').textContent=s.name;$('whoDot').style.background=s.col;
+  const line=$('line');line.classList.toggle('quote',!!quote);E.setTalker(key);
+  if(typing){clearInterval(typing.id);typing=null;}
+  const done=()=>{const c=E.chars[key];if(c)c.talk=false;};
+  if(RM){line.textContent=text;done();return Promise.resolve();}
+  line.textContent='';let i=0;
+  return new Promise(res=>{typing={id:setInterval(()=>{i++;line.textContent=text.slice(0,i);if(i>=text.length){clearInterval(typing.id);typing=null;done();res();}},24),
+    finish:()=>{clearInterval(typing.id);typing=null;line.textContent=text;done();res();}};});
+};
+E.actions=function(nodes){const a=$('actions');a.innerHTML='';nodes.forEach(n=>a.appendChild(n));};
+E.btn=function(cls,html,on){const b=document.createElement('button');b.className=cls;b.innerHTML=html;b.addEventListener('click',on);return b;};
+E.say=async function(key,text,opt){opt=opt||{};E.actions([]);await E.showLine(key,text,opt.quote);E.setTalker('');
+  return new Promise(res=>{const b=E.btn('next',opt.btn||'繼續',()=>res());E.actions([b]);b.focus({preventScroll:true});});};
+E.ask=async function(key,text,options,disabled,opts){E.actions([]);await E.showLine(key,text);
+  return new Promise(res=>{const n=options.map((o,i)=>{const b=E.btn('opt','<span class="k">'+'甲乙丙丁戊'[i]+'</span><span>'+o+'</span>',()=>res(i));if(disabled&&disabled.has(i))b.disabled=true;return b;});if(opts&&opts.skip)n.push(E.skipBtn(()=>res(-1)));E.actions(n);});};
+E.skipBtn=(fn,label)=>E.btn('skipbtn',label||'跳過，看答案',fn);
+E.hideDialog=()=>{$('dialog').hidden=true;E.setTalker('');};
+E.bindDialog=()=>$('dialog').addEventListener('click',e=>{if(typing&&!e.target.closest('button'))typing.finish();});
+
+/* assistant bubble */
+E.bubble=function(title,text,ms){const b=$('assistBubble');b.innerHTML='';const t=document.createElement('div');t.className='t';const s=document.createElement('span');s.textContent=title;
+  const x=document.createElement('button');x.textContent='收起';x.onclick=()=>b.hidden=true;t.append(s,x);const p=document.createElement('div');p.textContent=text;b.append(t,p);b.hidden=false;
+  clearTimeout(E._bt);if(ms)E._bt=setTimeout(()=>b.hidden=true,ms);};
+E.hideBubble=()=>{$('assistBubble').hidden=true;};
+
+/* overlays */
+E.overlay=function(html,dim){const o=$('overlay');o.className=dim?'dim':'';o.innerHTML=html;return o;};
+E.clearOverlay=function(){const o=$('overlay');o.innerHTML='';o.className='';};
+E.waitClick=sel=>new Promise(r=>document.querySelectorAll(sel).forEach(b=>b.addEventListener('click',()=>r(b))));
+E.glyph=function(id){const col=E.hex(E.PAL[id][0]);const eye='<circle cx="CX" cy="CY" r="4.2" fill="#fff"/><circle cx="CX" cy="CY" r="2.3" fill="#0B1F5E"/>';
+  const e=pts=>pts.map(([x,y])=>eye.replace(/CX/g,x).replace(/CY/g,y)).join('');
+  const sh={A:'<path d="M17 3 L31 27 H3 Z" fill="'+col+'" stroke="'+col+'" stroke-width="2" stroke-linejoin="round"/>'+e([[13,19],[21,19]]),
+    I:'<rect x="11" y="2" width="12" height="27" rx="2" fill="'+col+'"/>'+e([[13,11],[21,11]]),
+    G:'<path d="M26 9 A11 11 0 1 0 26 25" stroke="'+col+'" stroke-width="6" fill="none"/><path d="M20 17 L29 17 L29 26" stroke="'+col+'" stroke-width="4" fill="none"/>'+e([[12,7],[19,7]]),
+    O:'<circle cx="17" cy="17" r="10" stroke="'+col+'" stroke-width="6" fill="none"/>'+e([[10,8],[17,6]]),
+    P:'<rect x="9" y="5" width="16" height="24" rx="8" fill="'+col+'"/>'+e([[14,14],[20,14]])}[id];
+  return '<svg viewBox="0 0 34 34" aria-hidden="true">'+sh+'</svg>';};
+})();
+</script>
+<script>/* Escape-room mode built on ENG */
+(function(){
+"use strict";
+const E=ENG,$=E.$,V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const C=JSON.parse($('d-content').textContent),W=JSON.parse($('d-world').textContent),GM=JSON.parse($('d-game').textContent);
+const U={};C.units.forEach(u=>U[u.unit_id]=u);
+const ST={};GM.stations.forEach(s=>ST[s.unit_id]=s);
+const st={started:false,busy:false,score:0,t0:0,elapsed:0,solved:{},unlocked:{},examined:{},inv:{chars:[],items:[]},hints:{},hintsUsed:0,wrongs:0,traps:[],helped:{},objs:{},done:false};
+window.__esc=st;
+C.units.forEach(u=>{st.unlocked[u.unit_id]=ST[u.unit_id].unlocked_at_start;st.hints[u.unit_id]=0;});
+
+E.init({canvas:$('scene'),onResize:()=>setCam(),onFrame});
+E.bindDialog();
+E.ENV.room={sky:0x2E3A52,hs:0xFFE3C2,hg:0x4A3A30,hi:.62,sc:0xFFC08A,si:.55,sp:[-10,16,12]};
+E.setEnv('room',true);E.env.dim=.55;
+E.SPK={narrator:{name:'你',col:'#F4EBD6'},clue:{name:'線索',col:'#F2C14E'}};
+Object.entries(C.npc_slots).forEach(([s,d])=>E.SPK[s]={name:d.display_name,col:E.hex(E.PAL[d.character_id][0])});
+const scene=E.scene;
+
+/* ---------- scene kit: storeroom ---------- */
+const ground=[],stationLamps={},plaques=[];
+const R0=W.room;
+(function(){
+  const g=new THREE.Group();scene.add(g);
+  const grass=E.mesh(new THREE.PlaneGeometry(220,220),E.M(0x6E8F52),0,0,0,g);grass.rotation.x=-Math.PI/2;ground.push(grass);
+  const fl=E.mesh(new THREE.PlaneGeometry(R0.width,R0.depth),E.M(0xA7825A),0,.01,0,g);fl.rotation.x=-Math.PI/2;ground.push(fl);
+  for(let x=-6;x<=6;x+=1)E.box(.03,.004,R0.depth,0x8C6A46,x+.5,.013,0,g);
+  const bz=R0.back_wall_z,hw=R0.width/2;
+  E.box(R0.width+.4,2.8,.3,0xD6C6A2,0,1.4,bz-.15,g);E.box(R0.width+.6,.2,.55,0x4D5862,0,2.9,bz-.15,g);
+  [-1,1].forEach(sd=>{E.box(.3,1.1,R0.depth,0xD6C6A2,sd*(hw+.15),.55,0,g);E.box(.5,.16,R0.depth+.2,0x4D5862,sd*(hw+.15),1.18,0,g);});
+  E.box(1.6,2.3,.12,0x5A1D16,0,1.15,bz+.02,g);E.box(1.9,.18,.2,0x3A2A22,0,2.38,bz+.05,g);
+  for(let i=0;i<4;i++){const p=E.mesh(new THREE.BoxGeometry(.32,.32,.06),new THREE.MeshToonMaterial({color:0x6E6658,gradientMap:E.M(0).gradientMap,emissive:0}),-.54+i*.36,1.55,bz+.11,g);plaques.push(p);}
+  [-3,3].forEach(x=>{E.box(2.6,.08,.5,0x7A5236,x,1.6,bz+.28,g);E.box(2.6,.08,.5,0x7A5236,x,.9,bz+.28,g);});
+  E.house(g,0,-10,11,3.4,3.8,0xA8322A,0x4D5862,0);
+  const r=E.rng(9);for(let i=0;i<55;i++){const a=r()*Math.PI*2,d=11+r()*40;E.tree(g,Math.cos(a)*d,Math.sin(a)*d-2,.9+r()*.9,r()<.45?'pine':'',[0x5E8F4C,0x6FA35A,0x4E7F45][i%3]);}
+  for(let i=0;i<14;i++){const a=i/14*Math.PI*2,d=85+r()*30,h=16+r()*22;const m=E.mesh(new THREE.ConeGeometry(12+r()*10,h,5),E.M(0x6F7F92,{flatShading:true}),Math.cos(a)*d,h/2-1,Math.sin(a)*d-20,g);m.rotation.y=r()*3;}
+})();
+
+/* object models */
+function model(id){
+  const g=new THREE.Group(),M=E.M,mesh=E.mesh,box=E.box;let h=.8;
+  const paper=()=>{const p=box(.42,.02,.32,0xF4EFE2,0,.03,0,g);p.rotation.y=.3;box(.3,.022,.03,0x9A8A70,0,.045,-.05,g);box(.22,.022,.03,0x9A8A70,0,.045,.04,g);h=.3;};
+  const statue=(fn)=>{box(.7,.36,.5,0x8E8A80,0,.18,0,g);fn();};
+  switch(id){
+    case 'gourd':{box(1,.3,1,0x6E4A32,0,.15,0);const b=mesh(new THREE.SphereGeometry(.62,16,12),M(0xC9B458),0,.88,0,g);b.scale.set(1,.95,1);mesh(new THREE.SphereGeometry(.32,14,10),M(0xC2AE52),0,1.6,0,g);box(.06,.22,.06,0x6E4A32,0,1.98,0,g);h=2.1;break;}
+    case 'cabinet':{box(1.5,1.5,.7,0x7A4A2A,0,.75,0,g);for(let i=0;i<3;i++){box(1.3,.36,.04,0x92603A,0,.35+i*.45,.36,g);box(.16,.05,.05,0xE0B04B,0,.35+i*.45,.4,g);}h=1.6;break;}
+    case 'basin':{mesh(new THREE.CylinderGeometry(.9,.75,.4,20),M(0x7A5236),0,.2,0,g);const w=mesh(new THREE.CylinderGeometry(.8,.8,.04,20),M(0x5B8FC4,{emissive:0x0A2A4A}),0,.38,0,g);for(let i=0;i<5;i++){box(.06,.6,.06,0x4D5862,-.8+i*.4,.3,.95,g);mesh(new THREE.SphereGeometry(.07,8,6),M(0xC8452F),-.8+i*.4,.62,.95,g);}h=.9;break;}
+    case 'scrollshelf':{box(1.4,1.3,.5,0x7A5236,0,.65,0,g);box(1.3,.05,.45,0x5E3A24,0,.85,.02,g);for(let i=0;i<4;i++){const s=mesh(new THREE.CylinderGeometry(.07,.07,.5,10),M(0xD9C089),-.45+i*.3,.95,0,g);s.rotation.z=Math.PI/2;s.rotation.y=Math.PI/2;}h=1.4;break;}
+    case 'seedbag':{const s=mesh(new THREE.SphereGeometry(.3,10,8),M(0xA6834F),0,.28,0,g);s.scale.set(1,1.1,.9);mesh(new THREE.ConeGeometry(.12,.2,8),M(0x8A6A3A),0,.62,0,g);h=.8;break;}
+    case 'jar':{mesh(new THREE.CylinderGeometry(.38,.3,.7,14),M(0x8C6B4A),0,.35,0,g);mesh(new THREE.TorusGeometry(.34,.05,6,16),M(0x6E4A32),0,.7,0,g).rotation.x=Math.PI/2;box(.04,.3,.02,0x3A2A22,.2,.45,.33,g);h=.95;break;}
+    case 'ladle':{const l=mesh(new THREE.SphereGeometry(.55,14,8,0,Math.PI*2,0,Math.PI/2),M(0xC9B458),0,.14,0,g);l.scale.set(1,.25,1);l.rotation.x=Math.PI;l.position.y=.16;h=.45;break;}
+    case 'recipe':{const s=mesh(new THREE.CylinderGeometry(.08,.08,.7,10),M(0x8A5A2B),0,.1,0,g);s.rotation.z=Math.PI/2;box(.62,.02,.42,0xF0E6CC,0,.04,.24,g);h=.35;break;}
+    case 'silk':{mesh(new THREE.CylinderGeometry(.42,.34,.38,12),M(0xB98A4A),0,.19,0,g);for(let i=0;i<5;i++)mesh(new THREE.SphereGeometry(.17,8,6),M(0xF7F4EC),Math.cos(i*1.3)*.2,.42,Math.sin(i*1.3)*.2,g);h=.75;break;}
+    case 'battlemap':case 'river':{box(.06,1.2,.06,0x5E3A24,-.4,.6,0,g);box(.06,1.2,.06,0x5E3A24,.4,.6,0,g);const p=box(1,.7,.05,id==='river'?0x6FA7C9:0x7C8FA8,0,1.05,.04,g);p.rotation.x=-.12;box(.8,.06,.06,id==='river'?0x3E6B8A:0xC8452F,0,.95,.08,g);h=1.5;break;}
+    case 'peng':{for(let i=0;i<7;i++){const c=mesh(new THREE.ConeGeometry(.06,.7+i%3*.15,5),M(0xBFA36A),Math.cos(i)*.16,.35,Math.sin(i)*.16,g);c.rotation.z=(i%2?.35:-.35);c.rotation.x=(i%3-1)*.3;}h=.9;break;}
+    case 'tree':{mesh(new THREE.CylinderGeometry(.35,.28,.35,10),M(0x8C4A2A),0,.17,0,g);const t1=box(.16,.6,.16,0x6E4A32,0,.6,0,g);t1.rotation.z=.4;const t2=box(.12,.5,.12,0x6E4A32,.18,.95,0,g);t2.rotation.z=-.6;mesh(new THREE.IcosahedronGeometry(.42,0),M(0x5E8F4C,{flatShading:true}),.35,1.25,0,g);mesh(new THREE.IcosahedronGeometry(.32,0),M(0x6FA35A,{flatShading:true}),-.15,1.15,.1,g);h=1.6;break;}
+    case 'wildcat':statue(()=>{mesh(new THREE.SphereGeometry(.2,10,8),M(0x9A7A5A),0,.5,0,g).scale.set(1.3,.8,.8);mesh(new THREE.SphereGeometry(.13,10,8),M(0x9A7A5A),.25,.62,0,g);[-.05,.05].forEach(z=>mesh(new THREE.ConeGeometry(.05,.1,4),M(0x9A7A5A),.28,.76,z,g));});h=.95;break;
+    case 'yak':statue(()=>{mesh(new THREE.SphereGeometry(.3,10,8),M(0x4A3A30),0,.6,0,g).scale.set(1.3,.9,.9);mesh(new THREE.SphereGeometry(.17,10,8),M(0x4A3A30),.36,.62,0,g);[-.12,.12].forEach(z=>{const hn=mesh(new THREE.ConeGeometry(.04,.22,5),M(0xE8E0CC),.42,.8,z,g);hn.rotation.x=z>0?.5:-.5;});});h=1.1;break;
+    case 'door':{h=2.4;break;}
+    default:paper();
+  }
+  return {g,h};
+}
+
+/* objects */
+function makeObj(id,kind,pos,label,unit,data){
+  const {g,h}=model(kind==='clue'&&id.startsWith('note')?'note':id);g.position.copy(pos);scene.add(g);
+  const hit=E.mesh(new THREE.SphereGeometry(.75,8,6),new THREE.MeshBasicMaterial({visible:false}),0,h/2,0,g);
+  const el=document.createElement('button');el.className='spot'+(kind==='station'?' st':'');el.textContent=label;$('labels').appendChild(el);
+  const o={id,kind,pos:pos.clone(),g,hit,el,unit,data,anchor:{el,pos:pos.clone().add(V(0,h+.25,0))}};hit.userData.obj=o;
+  el.addEventListener('click',()=>clickObj(o));E.anchors.push(o.anchor);st.objs[id]=o;el.hidden=true;return o;
+}
+C.units.forEach(u=>{
+  u.clues.forEach(c=>makeObj(c.id,'clue',V(...W.clues[c.id]),c.label,u,c));
+  const s=makeObj(u.station.id,'station',V(...W.stations[u.station.id]),u.station.label,u,u.station);
+  const lamp=E.mesh(new THREE.SphereGeometry(.12,10,8),new THREE.MeshToonMaterial({color:0x8A7A60,gradientMap:E.M(0).gradientMap,emissive:0}),0,s.anchor.pos.y-s.pos.y-.05,0,s.g);stationLamps[u.unit_id]=lamp;
+});
+const door=makeObj('door','door',V(...R0.door),'石門',null,null);door.anchor.pos.y=2.75;
+
+/* characters */
+const slotKeys=Object.keys(C.npc_slots);
+slotKeys.forEach(s=>E.makeChar(s,C.npc_slots[s].character_id,C.npc_slots[s].costume));
+const P=E.makeChar('player','P',[]);P.speed=4.4;
+const MT=E.chars.mentor,CP=E.chars.companion,RV=E.chars.rival,GK=E.chars.gatekeeper;
+E.lampValue=()=>Object.keys(st.solved).length/4*.8+.2;
+MT.root.position.set(...W.npc_layout.mentor);MT.target.copy(MT.root.position);
+RV.root.position.set(...W.npc_layout.rival);RV.target.copy(RV.root.position);
+GK.root.position.set(...W.npc_layout.gatekeeper);GK.target.copy(GK.root.position);
+P.root.position.set(...R0.player_start);P.target.copy(P.root.position);
+CP.root.position.copy(P.root.position).add(V(...W.npc_layout.companion_follow));CP.target.copy(CP.root.position);
+$('helpIcon').innerHTML=E.glyph(C.npc_slots.companion.character_id).replace('<svg','<svg style="width:18px;height:18px"');
+$('helpLabel').textContent=C.npc_slots.companion.display_name+'幫忙';
+
+/* camera */
+function view(){return E.portrait?{p:V(0,27.5,11),l:V(0,0,-.2)}:{p:V(0,12.5,10.6),l:V(0,0,-.9)};}
+function setCam(){if(!st.started)return;const v=view();E.camSet(v.p,v.l);}
+E.parallax=.3;
+E.cam.idle=t=>{if(st.started)return;const a=t*.08;E.camera.position.set(Math.sin(a)*13,7,Math.cos(a)*13);E.cam.look.set(0,.6,-1);};
+
+/* interaction */
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function walkTo(pos,cb){const t=pos.clone();t.x=clamp(t.x,-6,6);t.z=clamp(t.z,-4.8,5.1);t.y=0;P.target.copy(t);P.lookAt=null;P.onArrive=cb||null;
+  if(cb&&P.root.position.distanceTo(t)<.06){P.onArrive=null;cb();}}
+function approach(o){const d=P.root.position.clone().sub(o.pos);d.y=0;if(d.length()<.01)d.set(0,0,1);d.setLength(o.kind==='station'?1.25:.95);return o.pos.clone().add(d);}
+function clickObj(o){if(!st.started||st.busy||st.done)return;E.hideBubble();P.lookAt=o.pos;walkTo(approach(o),()=>{P.lookAt=null;interact(o);});}
+const ray=new THREE.Raycaster(),pm=new THREE.Vector2();
+E.canvas.addEventListener('click',e=>{
+  if(!st.started||st.busy||st.done)return;const r=E.canvas.getBoundingClientRect();pm.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(pm,E.camera);
+  const hit=ray.intersectObjects(Object.values(st.objs).map(o=>o.hit))[0];if(hit){clickObj(hit.object.userData.obj);return;}
+  const g=ray.intersectObjects(ground)[0];if(g)walkTo(g.point,null);
+});
+async function interact(o){
+  if(o.kind==='clue')return examine(o);
+  if(o.kind==='door')return doorInteract();
+  const u=o.unit,id=u.unit_id;
+  if(st.solved[id]){E.floatBubble(CP,'這個機關已經破解了。',2000);return;}
+  if(!st.unlocked[id]){toast('機關還沒有啟動','先破解其他機關，這裡才會有反應。','');E.floatBubble(CP,'好像還打不開……',2000);return;}
+  const req=u.clues.filter(c=>c.kind==='required'),seen=req.filter(c=>st.examined[c.id]).length;
+  if(seen<req.length){E.floatBubble(CP,'線索還沒找齊（'+seen+'/'+req.length+'），再四處看看。',2600);toast('線索不足','「'+u.station.label+'」附近還有 '+(req.length-seen)+' 條線索沒有調查。','');return;}
+  if(ST[id].requires_item&&!st.inv.items.includes(ST[id].requires_item)){toast('缺少物品','這個機關需要「'+ST[id].requires_item+'」。','');return;}
+  st.busy=true;await puzzle(u);st.busy=false;E.hideDialog();hud();
+}
+async function examine(o,byHelper){
+  st.busy=true;const first=!st.examined[o.id];st.examined[o.id]=true;o.el.classList.add('done');
+  E.actions([]);await E.showLine('clue',o.data.text,/「/.test(o.data.text));$('whoName').textContent=(byHelper?C.npc_slots.companion.display_name+'找到了：':'')+o.data.label;
+  if(o.data.kind==='decoy'&&first){E.emote(RV,'hop');E.floatBubble(RV,'嘻嘻，記住了嗎？',2200);}
+  await new Promise(r=>E.actions([E.btn('next','記下',r)]));E.hideDialog();st.busy=false;hud();
+  if(first){const u=o.unit;const req=u.clues.filter(c=>c.kind==='required');if(st.unlocked[u.unit_id]&&!st.solved[u.unit_id]&&req.every(c=>st.examined[c.id]))toast('線索齊了','可以挑戰「'+u.station.label+'」的機關了。','ok');}
+}
+
+/* puzzles */
+function wrongFx(u){st.wrongs++;E.emote(RV,'hop');E.emote(GK,'shake');E.flash(false);E.floatBubble(RV,u?u.lines.rival_taunt:'哈哈，錯了！',2400);const d=$('dialog');d.classList.remove('shake');void d.offsetWidth;d.classList.add('shake');}
+async function cooldown(sec){for(let s=sec;s>0;s--){$('line').dataset.cd='冷卻中（'+s+' 秒）';$('cd').textContent='冷卻中：'+s+' 秒後可再試';await E.sleep(1000);}$('cd').textContent='';}
+function trap(opt){if(opt.trap)st.traps.push({clue:opt.trap,text:opt.text,why:opt.why});}
+function exitBtn(res){return E.btn('ghost','離開機關',()=>res(null));}
+function choose(key,prompt,opts,disabled){return new Promise(async res=>{E.actions([]);await E.showLine(key,prompt);
+  const nodes=opts.map((o,i)=>{const b=E.btn('opt','<span class="k">'+'甲乙丙丁戊'[i]+'</span><span>'+o.text+'</span>',()=>res(i));if(disabled.has(i))b.disabled=true;return b;});
+  const cd=document.createElement('p');cd.id='cd';cd.className='status';nodes.push(cd);if(key!=='gatekeeper')nodes.push(exitBtn(res));nodes.push(E.skipBtn(()=>res(-2)));E.actions(nodes);});}
+async function puzzle(u){
+  const id=u.unit_id,pz=u.puzzle;let wrong=0;st.ctx=id;
+  for(;;){
+    let ok=null;
+    if(u.puzzle_type==='clue_combine'||u.puzzle_type==='spot_the_fake'){
+      const opts=st._order&&st._order[id]||(st._order=st._order||{},st._order[id]=E.shuffle(pz.options));const dis=st._dis&&st._dis[id]||((st._dis=st._dis||{})[id]=new Set());
+      const i=await choose('narrator',pz.prompt,opts,dis);if(i===null)break;if(i===-2){await solved(u,0,true);break;}
+      ok=!!opts[i].correct;if(!ok){dis.add(i);trap(opts[i]);toast('不對',opts[i].why,'bad');}
+    }else if(u.puzzle_type==='pairing'){const r=await pairing(u);if(r===null)break;if(r==='skip'){await solved(u,0,true);break;}ok=r;}
+    else if(u.puzzle_type==='sequence'){const r=await sequence(u);if(r===null)break;if(r==='skip'){await solved(u,0,true);break;}ok=r;}
+    if(ok){await solved(u,wrong);break;}
+    wrong++;wrongFx(u);
+    if(wrong>=ST[id].force_hint_after&&st.hints[id]<1)giveHint(id,true);
+    await cooldown(ST[id].wrong_cooldown_sec);
+  }
+  st.ctx=null;
+}
+function pairing(u){const pz=u.puzzle;const pool=st._pool=st._pool||E.shuffle(pz.pool.map((p,i)=>Object.assign({i},p)));const sel=pz.rows.map(()=>null);
+  return new Promise(async res=>{E.actions([]);await E.showLine('narrator',pz.prompt);
+    const wrap=document.createElement('div');const draw=()=>{wrap.innerHTML='';pz.rows.forEach((row,ri)=>{const d=document.createElement('div');d.className='pz-row';d.innerHTML='<b>'+row.label+'</b>';
+      const ch=document.createElement('div');ch.className='chips';pool.forEach(p=>{const b=E.btn('chipb'+(sel[ri]===p.i?' on':'')+(sel.includes(p.i)&&sel[ri]!==p.i?' used':''),p.text,()=>{const k=sel.indexOf(p.i);if(k>=0)sel[k]=null;sel[ri]=p.i;draw();});ch.appendChild(b);});d.appendChild(ch);wrap.appendChild(d);});
+      sub.disabled=sel.some(s=>s===null);};
+    const sub=E.btn('next','確定',()=>{const wrongRows=pz.rows.filter((r,ri)=>sel[ri]!==r.answer);wrongRows.forEach((r,k)=>{const p=pz.pool[sel[pz.rows.indexOf(r)]];if(p){trap(p);}});
+      if(wrongRows.length){const p=pz.pool[sel[pz.rows.indexOf(wrongRows[0])]];toast('有 '+wrongRows.length+' 格配錯了',p&&p.why?p.why:'再看看線索中宋人和客人各自怎樣使用藥方。','bad');}res(!wrongRows.length);});
+    const cd=document.createElement('p');cd.id='cd';cd.className='status';
+    draw();E.actions([wrap,sub,cd,exitBtn(res),E.skipBtn(()=>res('skip'))]);});}
+function sequence(u){const pz=u.puzzle;const all=st._seq=st._seq||E.shuffle(pz.steps.map((s,i)=>({text:s.text,i})).concat([Object.assign({i:-1},pz.distractor)]));const order=[];
+  return new Promise(async res=>{E.actions([]);await E.showLine('narrator',pz.prompt);
+    const wrap=document.createElement('div');const draw=()=>{wrap.innerHTML='';const seq=document.createElement('ol');seq.className='seqlist';
+      for(let k=0;k<4;k++){const li=document.createElement('li');li.textContent=order[k]?order[k].text:'（第'+E.NUM[k]+'步）';li.className=order[k]?'':'empty';seq.appendChild(li);}wrap.appendChild(seq);
+      const ch=document.createElement('div');ch.className='chips';all.forEach(p=>{const used=order.includes(p);const b=E.btn('chipb'+(used?' used':''),p.text,()=>{if(used||order.length>=4)return;order.push(p);draw();});ch.appendChild(b);});wrap.appendChild(ch);
+      sub.disabled=order.length<4;};
+    const sub=E.btn('next','撥動',()=>{const ok=order.every((p,k)=>p.i===k);if(!ok){const bad=order.find((p,k)=>p.i!==k);if(bad.i===-1)trap(bad);toast('順序不對',bad.i===-1?bad.why:'莊子是先總評，再舉例，然後提出建議，最後才下結論。','bad');}res(ok);});
+    const reset=E.btn('ghost','重新排列',()=>{order.length=0;draw();});const cd=document.createElement('p');cd.id='cd';cd.className='status';
+    draw();E.actions([wrap,sub,reset,cd,exitBtn(res),E.skipBtn(()=>res('skip'))]);});}
+function ansText(u){const pz=u.puzzle;if(pz.options)return pz.options.find(o=>o.correct).text;if(pz.rows)return pz.rows.map(r=>r.label+'：'+pz.pool[r.answer].text).join('；');return pz.steps.map((x,i)=>(i+1)+'. '+x.text).join('　');}
+async function solved(u,wrong,skipped){
+  const id=u.unit_id,S=GM.scoring;st.solved[id]=true;const pts=skipped?0:Math.max(S.station_min,S.station_base-wrong*S.wrong_penalty);addScore(pts);if(skipped){st.skipped=(st.skipped||0)+1;await E.say('mentor','正確答案是：'+ansText(u));}
+  const rw=u.reward;st.inv.chars.push(rw.char);if(rw.item)st.inv.items.push(rw.item);
+  ST[id].unlocks.forEach(k=>st.unlocked[k]=true);
+  stationLamps[id].material.color.setHex(0xFFD27A);stationLamps[id].material.emissive.setHex(0xC88A20);
+  const p=plaques[st.inv.chars.length-1];if(p){p.material.color.setHex(0xF2C14E);p.material.emissive.setHex(0x8A5A10);}
+  E.env.dim=Math.max(0,.55-Object.keys(st.solved).length*.14);E.flash(true);E.emote(MT,'hop');E.emote(CP,'hop');E.emote(RV,'slump');
+  st.objs[u.station.id].el.classList.add('solved');
+  toast('機關破解 +'+pts,'得到「'+rw.char+'」字'+(rw.item?'，以及物品「'+rw.item+'」':'')+'。','ok');hud();
+  await E.say('mentor',u.lines.solved);
+  const newly=ST[id].unlocks.map(k=>U[k].station.label);if(newly.length)await E.say('companion','咦？'+newly.join('、')+'那邊好像有動靜了！');
+}
+
+/* hints & helper */
+function hintCtx(){if(st.ctx)return st.ctx;const c=C.units.find(u=>st.unlocked[u.unit_id]&&!st.solved[u.unit_id]);return c?c.unit_id:null;}
+function giveHint(id,auto){id=id||hintCtx();if(!id){E.bubble('學伴','所有機關都破解了，去石門看看吧！',4000);return;}
+  const u=U[id],lv=st.hints[id];if(lv>=3){E.bubble('學伴','「'+u.station.label+'」的提示已經用完了。',3000);return;}
+  st.hints[id]=lv+1;if(!auto){st.hintsUsed++;addScore(-GM.scoring.hint_penalty);}
+  E.bubble('學伴提示：'+u.station.label+' '+(lv+1)+'/3'+(auto?'':'（扣 '+GM.scoring.hint_penalty+' 分）'),u.hints[lv],7000);hud();}
+$('assist').addEventListener('click',()=>{if(st.started&&!st.done)giveHint(null,false);});
+$('help').addEventListener('click',()=>{
+  if(!st.started||st.busy||st.done)return;
+  const u=C.units.find(u=>st.unlocked[u.unit_id]&&!st.solved[u.unit_id]&&!st.helped[u.unit_id]&&u.clues.some(c=>c.kind==='required'&&!st.examined[c.id]));
+  if(!u){E.floatBubble(CP,'我暫時幫不上忙了。',2000);return;}
+  st.helped[u.unit_id]=true;const c=u.clues.find(c=>c.kind==='required'&&!st.examined[c.id]);const o=st.objs[c.id];
+  st.busy=true;CP.speed=4.2;CP.target.copy(approach(o));CP.lookAt=o.pos;E.floatBubble(CP,'我去那邊看看！',1600);
+  CP.onArrive=async()=>{CP.lookAt=null;E.emote(CP,'hop');st.busy=false;await examine(o,true);};hud();
+});
+$('notebook').addEventListener('click',()=>{if(!st.started||st.busy)return;notebook();});
+async function notebook(){
+  const groups=C.units.map(u=>{const cl=u.clues.filter(c=>st.examined[c.id]);return '<li><b>'+u.station.label+(st.solved[u.unit_id]?'（已破解）':'')+'</b>'+(cl.length?cl.map(c=>'<p>'+c.label+'：'+c.text+'</p>').join(''):'<p class="sub">尚未找到線索</p>')+'</li>';}).join('');
+  E.overlay('<div class="card"><h2>筆記本</h2><p class="sub">找到的線索會自動記在這裡。小心：其中有些是惠子留下的誤導。</p><ul class="notes">'+groups+'</ul><button class="primary" id="go">收起</button></div>',true);
+  await E.waitClick('#go');E.clearOverlay();
+}
+
+/* door */
+async function doorInteract(){
+  if(Object.keys(st.solved).length<4){st.busy=true;E.emote(GK,'shake');await E.say('gatekeeper',C.story.door_hint+'你已集齊 '+st.inv.chars.length+'/4 個字。');E.hideDialog();st.busy=false;return;}
+  st.busy=true;GK.lookAt=null;let wrong=0;const F=C.final;
+  // arrange chars
+  for(;;){const r=await arrange(F);if(r==='skip'){toast('正確次序',F.chars_order.join(''),'ok');break;}if(r)break;wrong++;wrongFx(null);toast('次序不對','想想這間庫房、這篇文章的主題。','bad');if(wrong>=2)E.bubble('學伴','惠子說它們「無用」，莊子卻看見了它們的……',6000);}
+  E.flash(true);plaques.forEach(p=>p.material.emissive.setHex(0xD89A20));
+  const opts=E.shuffle(F.options),dis=new Set();
+  for(;;){const i=await choose('gatekeeper',F.question,opts,dis);if(i===-2){await E.say('gatekeeper','答案是「'+opts.find(o=>o.correct).text+'」。');break;}if(opts[i].correct)break;dis.add(i);wrong++;wrongFx(null);toast('不對',opts[i].why,'bad');await cooldown(3);}
+  addScore(Math.max(10,GM.scoring.final_base-wrong*GM.scoring.wrong_penalty));
+  await E.say('gatekeeper','答對了。'+F.explain,{btn:'推開石門'});E.hideDialog();
+  st.done=true;st.busy=false;hud();await ending();
+}
+function arrange(F){const tiles=E.shuffle(st.inv.chars.map((c,i)=>({c,i})));const order=[];
+  return new Promise(async res=>{E.actions([]);await E.showLine('gatekeeper',F.arrange_prompt);
+    const wrap=document.createElement('div');const draw=()=>{wrap.innerHTML='';const row=document.createElement('div');row.className='slots';
+      for(let k=0;k<4;k++){const s=document.createElement('span');s.className='slotc'+(order[k]?' on':'');s.textContent=order[k]?order[k].c:'';row.appendChild(s);}wrap.appendChild(row);
+      const ch=document.createElement('div');ch.className='chips';tiles.forEach(t=>{const used=order.includes(t);ch.appendChild(E.btn('chipb big'+(used?' used':''),t.c,()=>{if(used||order.length>=4)return;order.push(t);draw();}));});wrap.appendChild(ch);sub.disabled=order.length<4;};
+    const sub=E.btn('next','放入凹槽',()=>res(order.map(t=>t.c).join('')===F.chars_order.join('')));const reset=E.btn('ghost','重新排列',()=>{order.length=0;draw();});
+    draw();E.actions([wrap,sub,reset,E.skipBtn(()=>res('skip'))]);});}
+
+/* frame & hud */
+function onFrame(dt,t){
+  if(st.started&&!st.done){st.elapsed=(performance.now()-st.t0)/1000;timerText();}
+  if(CP.onArrive==null&&!st.done){const d=CP.root.position.distanceTo(P.root.position);if(d>1.9){const off=V(...W.npc_layout.companion_follow);CP.target.copy(P.root.position).add(off);CP.target.x=clamp(CP.target.x,-6,6);CP.target.z=clamp(CP.target.z,-4.8,5.1);CP.speed=4;}}
+  if(st.started)[MT,RV,GK].forEach(c=>{if(!E.lookFocus)c.lookAt=P.root.position.clone().add(V(0,1.2,0));else c.lookAt=null;});
+}
+function timerText(){const s=Math.floor(st.elapsed);$('timer').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function addScore(n){st.score=Math.max(0,st.score+n);}
+function hud(){$('score').textContent=st.score;$('solved').textContent=Object.keys(st.solved).length+'/4';$('nbCount').textContent=Object.keys(st.examined).length;
+  const id=hintCtx();$('assist').disabled=!st.started||st.done;$('help').disabled=!st.started||st.done;
+  $('inv').innerHTML=st.inv.chars.map(c=>'<span class="s">'+c+'</span>').join('')+st.inv.items.map(c=>'<span class="s item">'+c+'</span>').join('');
+  door.el.textContent='石門 '+st.inv.chars.length+'/4';
+  C.units.forEach(u=>{const o=st.objs[u.station.id];o.el.classList.toggle('locked',!st.unlocked[u.unit_id]);});}
+let toastT=null;
+function toast(title,text,cls){const el=$('toast');el.className=cls||'';const dg=$('dialog');el.style.bottom=dg.hidden?'14px':Math.min(innerHeight-120,dg.offsetHeight+24)+'px';$('toastT').textContent=title;$('toastD').textContent=text||'';el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3800);}
+
+/* flow */
+async function ending(){
+  E.env.dim=0;E.flash(true);Object.values(E.chars).forEach(c=>E.emote(c,'hop'));
+  P.target.set(0,0,-4.6);await E.sleep(1200);
+  const s=Math.floor(st.elapsed),tm=Math.floor(s/60)+' 分 '+(s%60)+' 秒';
+  const seen={};const traps=st.traps.filter(t=>{if(seen[t.text])return false;seen[t.text]=1;return true;});
+  const tr=traps.length?'<p style="margin-top:6px"><b>你被這些誤導線索騙過</b></p><ul class="review">'+traps.map(t=>{const c=C.units.flatMap(u=>u.clues).find(c=>c.id===t.clue);return '<li><b>'+t.text+'</b><p>'+(c?'來源：'+c.text:'')+'</p><p>'+t.why+'</p></li>';}).join('')+'</ul>':'<p>惠子留下的誤導線索，一條都沒有騙到你。</p>';
+  E.overlay('<div class="card"><p class="sub" style="margin:0">逃出庫房</p><h2>'+(st.wrongs===0&&st.hintsUsed===0?'逍遙乎寢臥其下':st.wrongs<=3?'浮於江湖':'猶有蓬之心')+'</h2>'+
+    '<div class="stats"><div><b>'+tm+'</b>用時</div><div><b>'+st.score+'</b>分數</div><div><b>'+st.wrongs+'</b>答錯</div><div><b>'+st.hintsUsed+'</b>提示</div></div>'+tr+
+    '<p style="font-family:var(--serif)">莊子：'+C.debrief+'</p><button class="primary" id="again">再玩一次</button></div>',true);
+  await E.waitClick('#again');location.reload();
+}
+async function main(){
+  E.start();
+  E.overlay('<div class="title"><div class="v">逍遙遊</div><div class="v a">莊子</div><div class="side"><p>你被鎖在惠子的庫房裡。<br>他說，這裡全是大而無用的東西。</p><button class="primary" id="go">開始</button></div></div>',true);
+  $('go').focus();await E.waitClick('#go');
+  const d={mentor:'在窗外指點你，每破解一個機關就會解說',companion:'和你一起被困，每個機關可以幫你找一條線索',rival:'把你們鎖起來的人，還在屋裡留下了誤導的字條',gatekeeper:'守著石門，最後會考問你'};
+  E.overlay('<div class="card"><h2>庫房裡外</h2><div class="cast">'+slotKeys.map(s=>'<div>'+E.glyph(C.npc_slots[s].character_id)+'<p style="margin:0"><b>'+C.npc_slots[s].display_name+'</b><br><span>'+d[s]+'</span></p></div>').join('')+
+    '</div><p class="sub">點擊物件調查，線索會自動記入筆記本。每個機關都要先找齊附近的線索。答錯要等 5 秒才能再試；學伴提示每次扣 3 分。</p><button class="primary" id="go">環顧四周</button></div>',true);
+  await E.waitClick('#go');E.clearOverlay();
+  st.started=true;const v=view();await E.camTo(v.p,v.l,1.6);
+  $('hud').hidden=false;Object.values(st.objs).forEach(o=>o.el.hidden=false);hud();
+  st.busy=true;E.emote(RV,'hop');await E.say('rival',C.story.intro_rival);await E.say('mentor',C.story.intro_mentor);E.hideDialog();st.busy=false;
+  st.t0=performance.now();
+}
+main();
+})();
+</script>
+</body>
+</html>

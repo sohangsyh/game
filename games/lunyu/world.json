@@ -1,0 +1,55 @@
+{
+  "scene_kit": "apricot_courtyard",
+  "art_style": "warm low-poly, flat-shaded",
+  "navigation": "tap_to_move",
+  "arena": {
+    "spawn_area": {
+      "center": [
+        0,
+        0,
+        0.6
+      ],
+      "size": [
+        10,
+        4.6
+      ]
+    },
+    "zone_row_z": -4.2,
+    "zone_spacing": 3.2,
+    "player_start": [
+      0,
+      0,
+      3.6
+    ],
+    "player_start_portrait": [
+      0,
+      0,
+      5.4
+    ]
+  },
+  "npc_layout": {
+    "mentor": [
+      -6.2,
+      0,
+      -5.6
+    ],
+    "companion": [
+      6.2,
+      0,
+      2.6
+    ],
+    "rival": [
+      5.6,
+      0,
+      0.4
+    ],
+    "gatekeeper": [
+      0,
+      0,
+      -6.4
+    ]
+  },
+  "environment": {
+    "time": "morning"
+  }
+}
