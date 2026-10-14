@@ -10,7 +10,7 @@
 <style>
 :root{
   --bg:#EEF3EC; --paper:#FFFFFF; --ink:#1C2A26; --sub:#55665F; --line:#CFDAD2;
-  --g:#FF8A1C; --o:#10C77A; --a:#1677E8; --i:#F2B80F; --navy:#0B1F5E;
+  --g:#FF8A1C; --o:#10C77A; --a:#1677E8; --i:#F2B80F; --e:#A86ED8; --m:#E05A8A; --navy:#0B1F5E;
   --kai:"LXGW WenKai TC","Kaiti TC","STKaiti","KaiTi",serif;
   --sans:-apple-system,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -141,6 +141,8 @@ footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--sub);fon
     <span>學科</span>
     <button class="chip" aria-pressed="true" data-f="all">全部</button>
     <button class="chip" aria-pressed="false" data-f="中文">中國語文</button>
+    <button class="chip" aria-pressed="false" data-f="英文">英國語文</button>
+    <button class="chip" aria-pressed="false" data-f="數學">數學</button>
     <button class="chip" aria-pressed="false" data-f="科學">科學</button>
     <button class="chip" aria-pressed="false" data-f="中史">中國歷史</button>
     <button class="chip" aria-pressed="false" data-f="經濟">經濟、人文科</button>
@@ -154,9 +156,9 @@ footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--sub);fon
     <h3 id="soonT">即將推出</h3>
     <p>更多玩法正在製作中，覆蓋更多學科。</p>
     <div class="soon">
-      <div><b>對話闖關</b><span>英文、普通話、中文說話：和角色對話，練習聆聽與應對</span></div>
-      <div><b>建造工坊</b><span>數學、資訊科技：拼砌圖形、編排指令，再測試結果</span></div>
-      <div><b>節奏表演</b><span>音樂、詩詞朗讀：跟著節拍點擊與朗讀</span></div>
+      <div><b>普通話對話</b><span>普通話、中文說話：沿用對話闖關的玩法</span></div>
+      <div><b>編程工坊</b><span>資訊科技：編排指令，控制送貨機械人</span></div>
+      <div><b>音樂節奏</b><span>音樂科：節奏型與記譜，沿用節奏表演玩法</span></div>
     </div>
   </section>
 
@@ -167,8 +169,9 @@ footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--sub);fon
       <table>
         <tr><th>課堂時段</th><th>建議玩法</th><th>例子</th></tr>
         <tr><td>新課引入</td><td>RPG 冒險、探索漫遊</td><td>先玩《魚我所欲也》，再在課堂討論結局揭盅</td></tr>
-        <tr><td>理解後練習</td><td>密室逃脫、偵探查案、模擬實驗室</td><td>課後完成《赤壁疑案》，查看學生被哪些說法騙過</td></tr>
+        <tr><td>理解後練習</td><td>偵探查案、模擬實驗室</td><td>課後完成《赤壁疑案》，查看學生被哪些說法騙過</td></tr>
         <tr><td>溫習鞏固</td><td>限時搬運</td><td>考前反覆玩《論語》刷新分數</td></tr>
+        <tr><td>說話練習</td><td>對話闖關</td><td>開啟「開口說話」，讓學生跟 Sam 用英文對答</td></tr>
         <tr><td>專題活動</td><td>經營決策</td><td>分組經營《檸檬茶小店》，比較各組的定價策略</td></tr>
       </table>
     </div>
@@ -178,13 +181,16 @@ footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--sub);fon
 
 <script>
 (function(){
-const SUBJ={中文:'var(--g)',科學:'var(--o)',中史:'var(--a)',經濟:'var(--i)'};
+const SUBJ={中文:'var(--g)',英文:'var(--e)',數學:'var(--m)',科學:'var(--o)',中史:'var(--a)',經濟:'var(--i)'};
 const WHO={G:['#FF8A1C','G'],O:['#10C77A','O'],A:['#1677E8','A'],I:['#F2B80F','I']};
 const GAMES=[
  {t:'魚我所欲也',s:'中文',lv:'中學 DSE 範文',m:'RPG 冒險',who:'G',min:'15 分鐘',u:'games/fish/',d:'陪寒門士子赴京，在市集、茶亭、饑荒村口和豪宅之間，一次次在生與義之間抉擇。',l:['舍生取義的論證層次','類比與假設推論']},
  {t:'論語：杏壇搬運戰',s:'中文',lv:'中學 DSE 範文',m:'限時搬運',who:'I',min:'6 分鐘',u:'games/lunyu/',d:'在杏壇上限時搬運竹簡，分類語錄、配對字詞、排列次序，小人還會丟下誘餌。',l:['論仁、論孝、論君子','文言字詞的古今義']},
- {t:'逍遙遊：惠子的庫房',s:'中文',lv:'中學 DSE 範文',m:'密室逃脫',who:'A',min:'15 分鐘',u:'games/xiaoyao/',d:'被惠子鎖在堆滿「無用」之物的庫房，找線索、破機關，拼出開門的四個字。',l:['無用之用','分辨惠子與莊子的說法']},
+ {t:'逍遙遊：大瓠與大樹',s:'中文',lv:'中學 DSE 範文',m:'RPG 冒險',who:'A',min:'18 分鐘',u:'games/xiaoyao/',d:'親眼看莊子的寓言上演：大瓠盛水爆裂、吳越冬天水戰、乘大樽浮遊江湖、狸狌落網，再代莊子回應惠子。',l:['無用之用','以寓言說理']},
  {t:'始得西山',s:'中文',lv:'中學 DSE 範文',m:'探索漫遊',who:'O',min:'20 分鐘',u:'games/xishan/',d:'陪柳宗元從永州城外出發，渡湘江、斬草開路、攀上西山，在山頂待到天黑。',l:['遊蹤、景物、感受','景與情一起變化']},
+ {t:'山居秋暝',s:'中文',lv:'中學 DSE 範文',m:'節奏表演',who:'O',min:'12 分鐘',u:'games/shanju/',d:'跟著古琴節拍朗誦王維名作：守住二三停頓、選對韻腳、配對對仗，每唸好一句，山中的雨、月、泉、竹、蓮就活過來。',l:['五言律詩的節奏與押韻','對仗與意象']},
+ {t:'HK Buddy',s:'英文',lv:'初中英國語文',m:'對話闖關',who:'O',min:'20 分鐘',u:'games/hkbuddy/',d:'帶交換生 Sam 遊香港：在茶餐廳點餐、在港鐵站指路、在天星小輪介紹維港、在街市講價。',l:['得體的英語應對','聆聽與（可選）開口說話']},
+ {t:'地盤三視圖',s:'數學',lv:'初中數學',m:'建造工坊',who:'I',min:'20 分鐘',u:'games/site/',d:'在香港地盤操控塔式起重機，按工程師的三視圖藍圖砌出結構，再計算體積和要髹油的面積。',l:['正視圖、側視圖、俯視圖','體積與外露表面面積']},
  {t:'實驗室安全',s:'科學',lv:'初中科學',m:'RPG 冒險',who:'G',min:'15 分鐘',u:'games/labsafety/',d:'溶液濺眼、加熱試管、打破燒杯、火警鐘響，四場實驗室意外由你判斷怎樣處理。',l:['洗眼、加熱、清理碎玻璃的正確做法','火警疏散']},
  {t:'浮與沉',s:'科學',lv:'小學科學科',m:'模擬實驗室',who:'O',min:'20 分鐘',u:'games/floatsink/',d:'把東西放進水缸、捏泥膠船、一匙匙加鹽，先預測再動手，看看結果是否如你所想。',l:['物料、形狀、液體與浮沉','公平測試']},
  {t:'赤壁疑案',s:'中史',lv:'初中中國歷史',m:'偵探查案',who:'A',min:'20 分鐘',u:'games/chibi/',d:'草船借箭是真的嗎？走訪茶館、藏書閣和赤壁江邊，用史料在公堂上拆穿說書人。',l:['分辨史實與小說','史料的時間、性質與立場']},

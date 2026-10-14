@@ -1,35 +1,15 @@
 {
   "inputs": {
-    "units": 4,
-    "has_evidence": 4,
-    "has_dilemma": 0,
-    "teacher_context": "理解後練習、約 15 分鐘（測試假設）"
-  },
-  "feasibility": {
-    "escape": {
-      "pass": true,
-      "why": "4 個單元具備證據推理結構，每單元有 2 條以上必要線索"
-    },
-    "rpg": {
-      "pass": false,
-      "why": "缺少玩家需要親自取捨的兩難抉擇"
-    },
-    "carry": {
-      "pass": true,
-      "why": "部分內容可配對，但無法表現推理過程"
-    }
-  },
-  "scores": {
-    "escape": 0.88,
-    "carry": 0.41,
-    "rpg": 0.0
+    "subject": "中國語文（指定範文）",
+    "text_type": "寓言、辯論",
+    "has_dilemma": true,
+    "has_perspectives": true,
+    "has_imagery": true
   },
   "recommendation": {
-    "primary": "escape",
-    "reason": "全文圍繞「同一物件，不同用法」，天然適合從物件中找線索、推理用途的解謎",
-    "alternatives": [
-      "carry"
-    ]
+    "primary": "rpg",
+    "reason": "全文是莊子與惠子的兩場辯論，每個論點都靠寓言支持。讓學生親眼看見寓言發生，再代莊子回應惠子，最貼近原文的結構。",
+    "note": "上一版用密室逃脫，但「被鎖在庫房」並非原文情節，已改為依原文寓言推進的 RPG。"
   },
-  "teacher_confirmed": "escape"
+  "teacher_confirmed": "rpg"
 }

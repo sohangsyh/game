@@ -11,16 +11,20 @@ import json, sys, pathlib
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 GAMES = {
     # 遊戲資料夾: 頁面外殼, 玩法模組, 場景套件
-    "fish":      ("legacy_rpg_shell.html", None,           None),   # 第一個原型，舊版獨立程式
-    "lunyu":     ("carry_shell.html",      "carry.js",     None),
-    "xiaoyao":   ("escape_shell.html",     "escape.js",    None),
+    "fish":      ("rpg_shell.html",        "rpg.js",       "kit_ancient.js"),
+    "lunyu":     ("carry_shell.html",      "carry2.js",    "kit_ancient.js"),
+    "xiaoyao":   ("rpg_shell.html",        "rpg.js",       "kit_ancient.js"),
     "labsafety": ("rpg_shell.html",        "rpg.js",       "kit_campus.js"),
     "floatsink": ("sim_shell.html",        "sim.js",       "kit_campus.js"),
     "xishan":    ("explore_shell.html",    "explore.js",   None),
     "chibi":     ("detective_shell.html",  "detective.js", None),
     "shop":      ("manage_shell.html",     "manage.js",    None),
+    "hkbuddy":   ("dialogue_shell.html",   "dialogue.js",  "kit_hk.js"),
+    "site":      ("building_shell.html",   "building.js",  "kit_site.js"),
+    "shanju":    ("rhythm_shell.html",     "rhythm.js",    "kit_ancient.js"),
 }
 ICONS = {
+    "lantern": '<svg viewBox="0 0 40 52" aria-hidden="true"><rect x="15" y="1" width="10" height="5" rx="1" fill="#B9862A"/><rect x="9" y="6" width="22" height="4" rx="2" fill="#E0B04B"/><ellipse cx="20" cy="27" rx="15" ry="17" fill="#7A2A20"/><ellipse id="mGlow" cx="20" cy="27" rx="15" ry="17" fill="#FFB347" opacity=".5"/><rect x="9" y="43" width="22" height="4" rx="2" fill="#E0B04B"/></svg>',
     "flask": '<svg viewBox="0 0 40 52" aria-hidden="true"><path d="M15 4 H25 V18 L35 42 C36.5 46 34 49 30 49 H10 C6 49 3.5 46 5 42 L15 18 Z" fill="#1E3A5A" stroke="#E0B04B" stroke-width="2" stroke-linejoin="round"/><path id="mGlow" d="M11.5 32 H28.5 L33 43 C33.6 44.6 32.6 46 31 46 H9 C7.4 46 6.4 44.6 7 43 Z" fill="#5FD0A0" opacity=".5"/><path d="M13 4 H27" stroke="#E0B04B" stroke-width="3" stroke-linecap="round"/></svg>',
     "shield": '<svg viewBox="0 0 40 52" aria-hidden="true"><path d="M20 3 L36 9 V24 C36 36 29 44 20 49 C11 44 4 36 4 24 V9 Z" fill="#1E3A5A" stroke="#E0B04B" stroke-width="2"/><path id="mGlow" d="M20 8 L31 12.5 V24 C31 33 26 39.5 20 43.5 C14 39.5 9 33 9 24 V12.5 Z" fill="#5FD0A0" opacity=".5"/></svg>',
 }

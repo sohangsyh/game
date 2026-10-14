@@ -1,5 +1,5 @@
 {
-  "scene_kit": "apricot_courtyard",
+  "scene_kit": "ancient_town",
   "art_style": "warm low-poly, flat-shaded",
   "navigation": "tap_to_move",
   "arena": {
@@ -51,5 +51,62 @@
   },
   "environment": {
     "time": "morning"
-  }
+  },
+  "rounds": [
+    {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "template": "apricot_court",
+      "zone_style": "pad",
+      "env": "anc_morning",
+      "place": "杏壇"
+    },
+    {
+      "position": [
+        48,
+        0,
+        -14
+      ],
+      "template": "academy",
+      "zone_style": "lectern",
+      "env": "anc_morning",
+      "place": "書院講堂"
+    },
+    {
+      "position": [
+        96,
+        0,
+        0
+      ],
+      "template": "stele_yard",
+      "zone_style": "stele",
+      "env": "anc_bleak",
+      "place": "碑林"
+    },
+    {
+      "position": [
+        144,
+        0,
+        -14
+      ],
+      "template": "riverside",
+      "zone_style": "stepstone",
+      "env": "anc_dusk",
+      "place": "川上"
+    },
+    {
+      "position": [
+        192,
+        0,
+        0
+      ],
+      "template": "ancestral_hall",
+      "zone_style": "altar",
+      "env": "anc_night",
+      "place": "祠堂"
+    }
+  ]
 }

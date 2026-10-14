@@ -1,144 +1,202 @@
 {
-  "scene_kit": "storeroom",
-  "art_style": "warm low-poly, flat-shaded",
-  "navigation": "tap_to_move",
-  "room": {
-    "width": 13,
-    "depth": 11,
-    "back_wall_z": -5.5,
-    "door": [
+  "scene_kit": "ancient_town",
+  "player_avatar": true,
+  "wilderness": [
+    -48,
+    0,
+    -150
+  ],
+  "npc_layout": {
+    "mentor": [
+      -3.6,
       0,
-      0,
-      -5.4
+      1.0
     ],
-    "player_start": [
+    "companion": [
+      3.6,
       0,
-      0,
-      1.2
-    ]
-  },
-  "stations": {
-    "gourd": [
-      -4.2,
-      0,
-      -3.4
+      1.6
     ],
-    "cabinet": [
-      4.2,
-      0,
-      -3.6
-    ],
-    "basin": [
-      -3.8,
-      0,
-      2.6
-    ],
-    "scrollshelf": [
-      3.9,
-      0,
-      2.5
-    ]
-  },
-  "clues": {
-    "seedbag": [
-      -5.6,
-      0,
-      -4.6
-    ],
-    "jar": [
-      -2.6,
-      0,
-      -4.5
-    ],
-    "ladle": [
-      -5.5,
-      0,
-      -2.1
-    ],
-    "note1": [
-      -2.7,
-      0,
-      -2.4
-    ],
-    "recipe": [
-      2.7,
-      0,
-      -4.6
-    ],
-    "silk": [
-      5.6,
-      0,
-      -4.5
-    ],
-    "battlemap": [
-      5.6,
+    "rival": [
+      3.4,
       0,
       -2.2
     ],
-    "note2": [
-      2.6,
-      0,
-      -2.5
-    ],
-    "river": [
-      -5.6,
-      0,
-      1.3
-    ],
-    "peng": [
-      -2.3,
-      0,
-      3.6
-    ],
-    "note3": [
-      -5.2,
-      0,
-      4.0
-    ],
-    "tree": [
-      2.3,
-      0,
-      1.2
-    ],
-    "wildcat": [
-      5.6,
-      0,
-      1.2
-    ],
-    "yak": [
-      5.4,
-      0,
-      4.1
-    ],
-    "note4": [
-      2.1,
-      0,
-      4.0
-    ]
-  },
-  "npc_layout": {
-    "mentor": [
-      -7.8,
-      0,
-      -1.2
-    ],
-    "rival": [
-      7.8,
-      0,
-      -1.2
-    ],
     "gatekeeper": [
-      1.5,
+      -3.6,
       0,
-      -4.7
+      -2.6
     ],
-    "companion_follow": [
-      1.1,
+    "player": [
       0,
-      0.4
+      0,
+      2.6
     ]
   },
-  "environment": {
-    "time": "dusk"
-  }
+  "stages": [
+    {
+      "unit_id": "u1",
+      "template": "gourd_garden",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "environment": {
+        "time": "anc_morning"
+      },
+      "hotspots": [
+        {
+          "id": "seed",
+          "prop": "seed_sack",
+          "offset": [
+            -2.6,
+            0,
+            -1.0
+          ]
+        },
+        {
+          "id": "vine",
+          "prop": "gourd_vine",
+          "offset": [
+            0,
+            0,
+            -2.4
+          ]
+        },
+        {
+          "id": "ladle",
+          "prop": "ladle",
+          "offset": [
+            2.6,
+            0,
+            -0.8
+          ]
+        }
+      ]
+    },
+    {
+      "unit_id": "u2",
+      "template": "winter_river",
+      "position": [
+        34,
+        0,
+        -22
+      ],
+      "environment": {
+        "time": "anc_winter"
+      },
+      "hotspots": [
+        {
+          "id": "silk",
+          "prop": "silk_frame",
+          "offset": [
+            -2.6,
+            0,
+            -1.8
+          ]
+        },
+        {
+          "id": "salve",
+          "prop": "salve_jar",
+          "offset": [
+            0.2,
+            0,
+            -1.0
+          ]
+        },
+        {
+          "id": "gold",
+          "prop": "gold_bag",
+          "offset": [
+            2.6,
+            0,
+            -1.0
+          ]
+        }
+      ]
+    },
+    {
+      "unit_id": "u3",
+      "template": "great_lake",
+      "position": [
+        2,
+        0,
+        -52
+      ],
+      "environment": {
+        "time": "anc_dusk"
+      },
+      "hotspots": [
+        {
+          "id": "reed",
+          "prop": "reed_clump",
+          "offset": [
+            -2.8,
+            0,
+            -0.8
+          ]
+        },
+        {
+          "id": "stele",
+          "prop": "stele_lake",
+          "offset": [
+            2.8,
+            0,
+            -1.4
+          ]
+        },
+        {
+          "id": "float",
+          "prop": "gourd_float",
+          "offset": [
+            0,
+            0,
+            -1.2
+          ]
+        }
+      ]
+    },
+    {
+      "unit_id": "u4",
+      "template": "roadside_tree",
+      "position": [
+        -48,
+        0,
+        -80
+      ],
+      "environment": {
+        "time": "anc_morning"
+      },
+      "hotspots": [
+        {
+          "id": "tree",
+          "prop": "none",
+          "offset": [
+            -3.4,
+            2.2,
+            -3.2
+          ]
+        },
+        {
+          "id": "axe",
+          "prop": "axe_stump",
+          "offset": [
+            2.8,
+            0,
+            -0.8
+          ]
+        },
+        {
+          "id": "trap",
+          "prop": "trap",
+          "offset": [
+            0.6,
+            0,
+            -0.6
+          ]
+        }
+      ]
+    }
+  ]
 }

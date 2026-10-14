@@ -32,6 +32,7 @@ W.stages.forEach((s,si)=>s.hotspots.forEach(h=>{
 
 /* characters */
 Object.entries(C.npc_slots).forEach(([s,d])=>E.makeChar(s,d.character_id,d.costume));
+if(W.player_avatar){const p=E.makeChar('player','P',[]);p.speed=3.6;}
 const CH=E.chars;
 E.lampValue=()=>game.shown/100;
 function slotPos(i,slot){const l=W.npc_layout[slot];const s=E.portrait?.66:1;return stagePos[i].clone().add(V(l[0]*s,0,l[2]+(E.portrait&&slot==='companion'?.6:0)));}
@@ -73,13 +74,16 @@ function explore(si){
     list.forEach(h=>{h.ring.visible=true;h.el.hidden=false;});
     const back=()=>{status();const n=list.filter(h=>h.done).length;
       if(n>=list.length){clearTimeout(idle);E.actions([E.btn('next','繼續',()=>{list.forEach(h=>{h.ring.visible=false;h.el.hidden=true;});game.exploreCb=null;res();})]);}else{E.actions([]);arm();}};
-    game.exploreCb=async h=>{if(h.si!==si)return;clearTimeout(idle);E.hideBubble();h.done=true;h.el.classList.add('done');h.ring.material=new THREE.MeshBasicMaterial({color:0x5FB49C});
+    game.exploreCb=async h=>{if(h.si!==si||game.walking||h.busy)return;h.busy=true;clearTimeout(idle);E.hideBubble();await walkTo(h.anchor.pos.clone().setY(0));h.busy=false;h.done=true;h.el.classList.add('done');h.ring.material=new THREE.MeshBasicMaterial({color:0x5FB49C});
       E.actions([]);await E.showLine('clue',h.data.text,/「/.test(h.data.text));$('whoName').textContent=h.data.label;E.actions([E.btn('next','收起',back)]);};
     $('dialog').hidden=false;E.setTalker('');back();});
 }
 const ray=new THREE.Raycaster(),pm=new THREE.Vector2();
 E.canvas.addEventListener('click',e=>{if(!game.exploreCb)return;const r=E.canvas.getBoundingClientRect();pm.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);
-  ray.setFromCamera(pm,E.camera);const hit=ray.intersectObjects(hotspots.filter(h=>h.ring.visible).map(h=>h.hit))[0];if(hit)game.exploreCb(hit.object.userData.hs);});
+  ray.setFromCamera(pm,E.camera);const hit=ray.intersectObjects(hotspots.filter(h=>h.ring.visible).map(h=>h.hit))[0];if(hit){game.exploreCb(hit.object.userData.hs);return;}
+  const PL=CH.player;if(PL&&!game.walking){const pt=V();if(ray.ray.intersectPlane(new THREE.Plane(V(0,1,0),0),pt)){const c=stagePos[game.stage];const d=pt.clone().sub(c);d.y=0;if(d.length()>6)d.setLength(6);PL.target.copy(c).add(d);PL.onArrive=null;}}});
+function walkTo(pos){const PL=CH.player;if(!PL)return Promise.resolve();game.walking=true;const d=PL.root.position.clone().sub(pos);d.y=0;if(d.length()<.01)d.set(0,0,1);d.setLength(1.1);PL.target.copy(pos).add(d).setY(0);PL.lookAt=pos;
+  return new Promise(r=>{PL.onArrive=()=>{PL.lookAt=null;game.walking=false;r();};if(PL.root.position.distanceTo(PL.target)<.06){PL.onArrive=null;PL.lookAt=null;game.walking=false;r();}});}
 
 /* chapter */
 async function chapterCard(i,u){
@@ -95,8 +99,11 @@ async function playChapter(i){
   const v=stageView(i);placeParty(i,false,3.2);await E.camTo(v.pos,v.look,i===0?2.4:3.4);
   await E.say('companion',fill(u.lines.enter));
   await explore(i);
+  const ix=u.interactions||{};const ctx={i,u,pos:stagePos[i],CH,game};
+  if(ix.after_explore&&KIT.interact)await KIT.interact(ix.after_explore,ctx);
   await E.say('mentor',u.lines.guide);
   const rv=CH.rival;rv.target.copy(slotPos(i,'rival')).add(V(0,0,1.2));rv.speed=2;
+  if(ix.before_dilemma&&KIT.interact)await KIT.interact(ix.before_dilemma,ctx);
   await E.say('rival',u.lines.dilemma);
   setHint(u.hints.dilemma);
   const order=E.shuffle([0,1,2]);
@@ -104,6 +111,7 @@ async function playChapter(i){
   const choice=u.choices[order[pick]],rule=ch.beats.choices.find(c=>c.type===choice.type);
   setHint(null);E.hideBubble();setMeter(game.meter+rule.meter);addScore(rule.score);game.history.push({unit:u,choice});
   const good=choice.type==='correct';E.flash(good,good?null:parseInt(GM.wrong_flash||'0x2A2440'));
+  if(ix.after_choice&&KIT.interact){E.hideDialog();await KIT.interact(ix.after_choice,Object.assign({choice:choice.type},ctx));}
   if(good){E.emote(CH.rival,'slump');E.emote(CH.companion,'hop');}else{E.emote(CH.rival,'hop');E.emote(CH.companion,'shake');E.emote(CH.gatekeeper,'shake');}
   E.floatBubble(CH.companion,good?u.reactions.companion_on_correct:u.reactions.companion_on_wrong,3600);
   await E.say('rival',good?u.reactions.rival_on_correct:u.reactions.rival_on_wrong);
@@ -151,7 +159,7 @@ async function main(){
   setMeter(50);placeParty(0,true);E.camera.position.set(0,4.2,10);E.cam.look.set(0,1,-1.2);E.start();
   await title();
   game.meter=game.shown=game.role.start_value;setMeter(game.meter);$('hud').hidden=false;
-  for(let i=0;i<C.units.length;i++)await playChapter(i);
+  for(let i=Math.max(0,(window.__startCh||1)-1);i<C.units.length;i++)await playChapter(i);
   await ending();
 }
 main();
