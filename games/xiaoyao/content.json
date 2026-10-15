@@ -50,9 +50,7 @@
       "character_id": "A",
       "display_name": "惠子",
       "persona": "莊子的老朋友兼辯友，凡事講求實用",
-      "costume": [
-        "coin"
-      ]
+      "costume": []
     },
     "gatekeeper": {
       "character_id": "I",

@@ -16,7 +16,7 @@ GAMES = {
     "xiaoyao":   ("rpg_shell.html",        "rpg.js",       "kit_ancient.js"),
     "labsafety": ("rpg_shell.html",        "rpg.js",       "kit_campus.js"),
     "floatsink": ("sim_shell.html",        "sim.js",       "kit_campus.js"),
-    "xishan":    ("explore_shell.html",    "explore.js",   None),
+    "xishan":    ("explore_shell.html",    "explore.js",   "kit_ancient.js"),
     "chibi":     ("detective_shell.html",  "detective.js", None),
     "shop":      ("manage_shell.html",     "manage.js",    None),
     "hkbuddy":   ("dialogue_shell.html",   "dialogue.js",  "kit_hk.js"),

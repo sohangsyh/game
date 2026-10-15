@@ -107,11 +107,28 @@ E.kits.school_campus={
       E.emote(CH.companion,'hop');E.floatBubble(CH.companion,'我去找老師！',2200);const ck=document.createElement('p');ck.className='status';ck.style.fontSize='24px';ck.style.color='var(--paper)';E.actions([ck]);
       await ctween(5,k=>{const s=Math.round(900*(1-k));ck.textContent='持續沖洗　'+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');});on=false;
       await E.say('mentor','沖足十五分鐘，眼睛裡的溶液就沖乾淨了。做得好。');return;}
-    if(name==='bunsen'){const bn=REF.burner_bench;const y=bn.userData.yellow,b=bn.userData.blue,col=bn.userData.collar;let air=0;const set=a=>{air=a;y.material.opacity=Math.max(0,1-a*1.3);y.scale.set(1,1.6-a*.9,1);b.material.opacity=Math.max(0,a*1.2-.2);b.scale.set(1,.6+a*.6,1);col.rotation.y=a*2.4;};set(0);
-      await new Promise(async res=>{E.actions([]);await E.showLine('mentor','先調好本生燈。轉動空氣孔，看看火焰有甚麼變化。');const d=document.createElement('div');d.className='sl';d.innerHTML='<div class="slh"><span>空氣孔</span><b>關閉</b></div><input type="range" min="0" max="100" value="0" aria-label="空氣孔">';
-        const inp=d.querySelector('input'),lab=d.querySelector('b'),st=document.createElement('p');st.className='status';const ok=E.btn('next','火焰調好了',()=>res());ok.disabled=true;
-        inp.addEventListener('input',()=>{const a=inp.value/100;set(a);lab.textContent=a<.3?'關閉':a<.7?'半開':'全開';st.textContent=a<.3?'黃色火焰：溫度較低，會在試管底留下黑色煙灰。':a<.7?'火焰開始變藍……':'藍色火焰：溫度高，燃燒完全，適合加熱。';ok.disabled=a<.7;});E.actions([d,st,ok]);});
-      E.actions([]);E.emote(CH.companion,'hop');return;}
+    if(name==='bunsen'){const bn=REF.burner_bench;const y=bn.userData.yellow,b=bn.userData.blue,col=bn.userData.collar;const bw=cwpos(col);
+      const cam0=E.camera.position.clone(),look0=E.cam.look.clone();await E.camTo(bw.clone().add(V(.75,1.05,1.75)),bw.clone().add(V(0,-.12,0)),1.4);
+      const hole=E.box(.03,.035,.02,0x111111,0,0,.052,col);let air=0,arrowsOn=true;
+      const set=a=>{air=a;y.material.opacity=Math.max(0,1-a*1.3);y.scale.set(1+.1*(1-a),1.15-a*.55,1);b.material.opacity=Math.max(0,a*1.25-.25);b.scale.set(1,.6+a*.7,1);col.rotation.y=a*2.4;hole.scale.x=.2+a*2.2;};set(0);
+      const spawn=()=>{if(!arrowsOn)return;if(Math.random()<air*1.4){const m=new THREE.Mesh(new THREE.ConeGeometry(.012,.05,6),new THREE.MeshBasicMaterial({color:0x8FD8FF,transparent:true}));const a2=Math.random()*6.28;m.position.copy(bw).add(V(Math.cos(a2)*.35,(Math.random()-.5)*.1,Math.sin(a2)*.35));m.lookAt(bw);m.rotateX(Math.PI/2);E.scene.add(m);
+        CFX.push({m,v:bw.clone().sub(m.position).multiplyScalar(2.2),g:0,life:.45});}setTimeout(spawn,60);};spawn();
+      const dish=new THREE.Group();const dm=new THREE.MeshLambertMaterial({color:0xF4F4F0});const dsh=new THREE.Mesh(new THREE.SphereGeometry(.12,16,8,0,Math.PI*2,Math.PI/2,Math.PI/2),dm);dish.add(dsh);dish.position.copy(bw).add(V(0,.62,0));dish.visible=false;E.scene.add(dish);
+      const info=a=>'<div class="bn"><div><span>空氣孔</span><b>'+(a<.3?'關閉':a<.7?'半開':'全開')+'</b></div><div><span>進入的空氣（氧氣）</span><b>'+(a<.3?'少':a<.7?'中':'充足')+'</b></div><div><span>燃燒</span><b>'+(a<.7?'不完全':'完全')+'</b></div><div><span>火焰</span><b style="color:'+(a<.7?'#F2B040':'#7AB8FF')+'">'+(a<.3?'黃色、搖晃、明亮':a<.7?'黃藍混合':'藍色、穩定、有內焰')+'</b></div><div><span>溫度</span><b>'+(a<.7?'較低':'較高')+'</b></div><div><span>煙灰（碳粒）</span><b>'+(a<.7?'會產生':'沒有')+'</b></div></div>';
+      const sootTest=async()=>{dish.visible=true;dm.color.setHex(0xF4F4F0);await ctween(1.4,k2=>{if(air<.7)dm.color.setRGB(.96-.8*k2*(1-air),.96-.8*k2*(1-air),.94-.8*k2*(1-air));});};
+      // step 1: closed air hole, soot test
+      await new Promise(async res=>{E.actions([]);await E.showLine('mentor','本生燈的關鍵在底部的「空氣孔」。現在空氣孔是關上的，看看火焰，再把蒸發皿放在火焰上方。');const d=document.createElement('div');d.innerHTML=info(0);E.actions([d.firstChild,E.btn('next','放上蒸發皿',async()=>{E.actions([]);await sootTest();res();})]);});
+      E.emote(CH.companion,'shake');await E.say('companion','蒸發皿底黑了！是煙灰。');await E.say('mentor','空氣孔關上，進入的氧氣不足，煤氣燃燒不完全，產生碳粒，就是煙灰。黃色火焰溫度也較低。');dish.visible=false;
+      // step 2: open the air hole
+      await new Promise(async res=>{E.actions([]);await E.showLine('mentor','慢慢轉動套環，打開空氣孔。留意空氣怎樣被吸進去，火焰又有甚麼變化。');const w=document.createElement('div');
+        w.innerHTML='<div class="sl"><div class="slh"><span>轉動套環：空氣孔開合</span><b>關閉</b></div><input type="range" min="0" max="100" value="0" aria-label="空氣孔開合"></div><div class="bnw"></div>';
+        const inp=w.querySelector('input'),lab=w.querySelector('.slh b'),pan=w.querySelector('.bnw');pan.innerHTML=info(0);const ok=E.btn('next','再放上蒸發皿測試',async()=>{E.actions([]);await sootTest();res();});ok.disabled=true;
+        inp.addEventListener('input',()=>{const a=inp.value/100;set(a);lab.textContent=a<.3?'關閉':a<.7?'半開':'全開';pan.innerHTML=info(a);ok.disabled=a<.7;});E.actions([w,ok]);});
+      E.emote(CH.companion,'hop');await E.say('companion','這次蒸發皿乾乾淨淨！火焰也變成藍色了。');dish.visible=false;
+      await E.say('mentor','空氣孔打開，吸入的空氣多了，氧氣充足，煤氣完全燃燒：火焰變藍、溫度較高、不產生煙灰，最適合加熱。');
+      const q={question:'為甚麼打開空氣孔後，火焰會變成藍色？',options:['吸入的空氣（氧氣）較多，煤氣燃燒完全','煤氣的供應增加了','火焰的溫度降低了','空氣孔把火焰的黃色過濾掉了'],answer:0};const dis=new Set();
+      for(;;){const i=await E.ask('gatekeeper',q.question,q.options,dis,{skip:true});if(i===-1||i===q.answer){await E.say('gatekeeper',(i===-1?'答案是：吸入的空氣（氧氣）較多，煤氣燃燒完全。':'正確。')+'影響火焰的核心因素，是進入燈管的空氣（氧氣）多少。');break;}dis.add(i);E.emote(CH.gatekeeper,'shake');}
+      arrowsOn=false;E.scene.remove(dish);await E.camTo(cam0,look0,1.2);return;}
     if(name==='heat'){const tr=REF.tube_rack,bn=REF.burner_bench;const t=new THREE.Group();t.position.copy(cwpos(bn.userData.blue)).add(V(0,.25,0));E.scene.add(t);
       const tube=mesh(new THREE.CylinderGeometry(.04,.04,.42,10),new THREE.MeshPhongMaterial({color:0xDCF0F6,transparent:true,opacity:.5}),0,0,0,t);const liq=mesh(new THREE.CylinderGeometry(.035,.035,.12,10),M(0x9FD8F2),0,-.14,0,t);
       if(ctx.choice==='correct'){await ctween(.6,k=>{t.rotation.z=-.6*k;});for(let i=0;i<10;i++){cburst(cwpos(liq).add(V(0,.06,0)),0xFFFFFF,2,.05,-1,.4,new THREE.SphereGeometry(.012,5,4));t.rotation.z=-.6+Math.sin(i)*.12;await ctween(.15,()=>{});}await E.say('narrator','試管傾斜、輕輕搖動，溶液均勻受熱，平穩地沸騰。');}
