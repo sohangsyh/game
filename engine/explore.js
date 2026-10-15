@@ -77,8 +77,8 @@ const P={};
   const pv=new THREE.Group();place(pv,Z.z2.center[0],Z.z2.center[1]);E.scene.add(pv);
   if(K){K.box(3.6,.35,3.6,0xA8A090,0,.17,0,pv);[[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]].forEach(([x,z])=>K.box(.2,2.5,.2,0xA8322A,x,1.6,z,pv));for(let i=-1;i<=1;i+=2){K.box(2.8,.08,.08,0x8A2A1E,0,.8,i*1.4,pv);K.box(.08,.08,2.8,0x8A2A1E,i*1.4,.8,0,pv);}
     K.roof(pv,2.8,2.8,1.4,'green',0,2.85,0);const ts=K.tex(256,96,(c,W2,H2)=>{c.fillStyle='#1E1A16';c.fillRect(0,0,W2,H2);c.fillStyle='#E8C060';c.font='bold 56px serif';c.textAlign='center';c.fillText('西亭',W2/2,68);});K.panel(pv,1,.36,ts,0,2.62,1.52,0);
-    const tp=new THREE.Group();tp.position.set(0,0,-6);pv.add(tp);K.building(tp,0,0,6,3.4,3,{roof:'gold',rh:1.8,sign:'法華寺',lanterns:true});
-    for(let i=0;i<3;i++)K.pine(pv,-4+i*4,-3.5-(i%2),1.3);}
+    const tp=new THREE.Group();tp.position.set(8,0,1);tp.rotation.y=-Math.PI/2;pv.add(tp);K.building(tp,0,0,6,3.4,3,{roof:'gold',rh:1.8,sign:'法華寺',lanterns:true});
+    for(let i=0;i<3;i++)K.pine(pv,-6-(i%2),2+i*2.5,1.3);}
   else{[[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]].forEach(([x,z])=>box(.18,2.4,.18,0xA8322A,x,1.2,z,pv));}
   const rf=mesh(E.roofGeo(),M(0x3F5A57),0,2.9,0,pv);rf.scale.set(2.3/.707,1.1,2.3/.707);box(3.2,.15,3.2,0xBFB094,0,.07,0,pv);
   const bt=new THREE.Group();bt.position.set(Z.z3.boat[0],-.42,Z.z3.boat[1]);E.scene.add(bt);box(1.3,.3,3,0x8A5A2B,0,.1,0,bt);box(1.1,.32,.25,0x6E4A32,0,.3,1.4,bt);box(1.1,.32,.25,0x6E4A32,0,.3,-1.4,bt);box(.05,1.6,.05,0x6E4A32,.5,.9,1.2,bt);if(K){const cn=new THREE.Mesh(new THREE.CylinderGeometry(.7,.7,1.4,12,1,true,0,Math.PI),M(0xA88A4A,{side:THREE.DoubleSide}));cn.rotation.z=Math.PI/2;cn.rotation.y=Math.PI/2;cn.position.set(0,.5,-.4);bt.add(cn);const bm=K.folk({hat:'farmer',robe:0x5A6A7A});bm.position.set(0,.25,1.1);bm.rotation.y=Math.PI;bt.add(bm);const oar=box(.05,.05,2.2,0x6E4A32,.55,.4,1.6,bt);oar.rotation.x=.4;}P.boat=bt;
@@ -99,7 +99,7 @@ let following=true;
 function camFollow(){const c=GM.camera,pd=E.portrait;const d=pd?c.follow_dist_portrait:c.follow_dist,h=pd?c.follow_height_portrait:c.follow_height;
   const p=PL.root.position,o=V(Math.sin(st.yaw)*d,h,Math.cos(st.yaw)*d);return {p:p.clone().add(o),l:p.clone().add(V(0,1.2,0))};}
 function camLook(){const eye=st.eye.clone();const dir=V(Math.sin(st.yaw+Math.PI)*Math.cos(st.pitch),Math.sin(st.pitch),Math.cos(st.yaw+Math.PI)*Math.cos(st.pitch));
-  const back=dir.clone().multiplyScalar(-(E.portrait?2.6:1.6)).add(V(0,.5,0));return {p:eye.clone().add(back),l:eye.clone().add(dir.multiplyScalar(20))};}
+  const back=dir.clone().multiplyScalar(-(st.backOff!=null?st.backOff:(E.portrait?2.6:1.6))).add(V(0,.5,0));return {p:eye.clone().add(back),l:eye.clone().add(dir.multiplyScalar(20))};}
 E.cam.idle=t=>{let v;if(st.cam==='idle'){const a=t*.05;v={p:V(Math.sin(a)*14,Y(0,58)+8,58+Math.cos(a)*14),l:V(0,Y(0,58)+1.5,58)};}
   else if(st.cam==='follow')v=camFollow();else v=camLook();
   E.camera.position.lerp(v.p,.08);E.cam.look.lerp(v.l,.1);};
@@ -160,14 +160,15 @@ async function zRoam(z,i){
   st.clickHandlers=[];await E.say('narrator',z.outro);
 }
 async function zSpot(z){
-  const c=Z.z2.center;st.cam='look';st.eye=V(c[0],Y(c[0],c[1])+1.9,c[1]);st.yaw=Math.atan2(5,9);st.pitch=-.02;
+  const c=Z.z2.center;st.cam='look';st.eye=V(c[0]-.3,Y(c[0],c[1])+1.9,c[1]-2.5);st.backOff=.25;st.yaw=Math.atan2(5,9);st.pitch=-.02;
   await E.say('mentor',z.intro_mentor);st.taskText=z.task;st.hintText='西山在你的南面偏西，比四周所有的山都高，山頂是岩石。試試向左拖動。';
   const tgt=Z.z2.target,big=mesh(new THREE.SphereGeometry(9,8,6),new THREE.MeshBasicMaterial({visible:false}),tgt[0],Y(tgt[0],tgt[1])-4,tgt[1],E.scene);
   const others=T.other_hills.map(o=>mesh(new THREE.SphereGeometry(8,8,6),new THREE.MeshBasicMaterial({visible:false}),o[0],Y(o[0],o[1])-3,o[1],E.scene));
+  E.fade.extra=[V(tgt[0],Y(tgt[0],tgt[1])+6,tgt[1])];
   let wrong=0;await new Promise(res=>{st.clickHandlers=[ray=>{const h=ray.intersectObjects([big].concat(others))[0];if(!h)return false;
       if(h.object===big){res();return true;}wrong++;E.floatBubble(CH.companion,z.wrong_line,2200);if(wrong===1){E.emote(CH.rival,'hop');E.floatBubble(CH.rival,z.rival_line,2400);}return true;}];
     task(z.task,[E.skipBtn(()=>{wrong=99;res();},'跳過，告訴我是哪座山')]);});
-  st.clickHandlers=[];if(!wrong)addScore(GM.scoring.spot_first_try);if(wrong===99){st.yaw=.1;st.pitch=0;}E.flash(true);toast('就是它！','西山，比四周的小山都高，與眾不同。','ok');E.emote(CH.mentor,'hop');
+  st.clickHandlers=[];E.fade.extra=null;st.backOff=null;if(!wrong)addScore(GM.scoring.spot_first_try);if(wrong===99){st.yaw=.1;st.pitch=0;}E.flash(true);toast('就是它！','西山，比四周的小山都高，與眾不同。','ok');E.emote(CH.mentor,'hop');
   await showCard(z.card,'mentor');addMood(z.mood);st.cam='follow';st.yaw=0;
 }
 async function zRide(z){

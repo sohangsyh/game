@@ -10,7 +10,7 @@
 <style>
 :root{
   --bg:#EEF3EC; --paper:#FFFFFF; --ink:#1C2A26; --sub:#55665F; --line:#CFDAD2;
-  --g:#FF8A1C; --o:#10C77A; --a:#1677E8; --i:#F2B80F; --e:#A86ED8; --m:#E05A8A; --navy:#0B1F5E;
+  --g:#FF8A1C; --o:#10C77A; --a:#1677E8; --i:#F2B80F; --e:#A86ED8; --m:#E05A8A; --geo:#3AA8B8; --ict:#7A8AE8; --navy:#0B1F5E;
   --kai:"LXGW WenKai TC","Kaiti TC","STKaiti","KaiTi",serif;
   --sans:-apple-system,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -145,6 +145,8 @@ footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--sub);fon
     <button class="chip" aria-pressed="false" data-f="數學">數學</button>
     <button class="chip" aria-pressed="false" data-f="科學">科學</button>
     <button class="chip" aria-pressed="false" data-f="中史">中國歷史</button>
+    <button class="chip" aria-pressed="false" data-f="地理">地理</button>
+    <button class="chip" aria-pressed="false" data-f="資訊科技">資訊科技</button>
     <button class="chip" aria-pressed="false" data-f="經濟">經濟、人文科</button>
   </div>
 </nav>
@@ -157,8 +159,7 @@ footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--sub);fon
     <p>更多玩法正在製作中，覆蓋更多學科。</p>
     <div class="soon">
       <div><b>普通話對話</b><span>普通話、中文說話：沿用對話闖關的玩法</span></div>
-      <div><b>編程工坊</b><span>資訊科技：編排指令，控制送貨機械人</span></div>
-      <div><b>音樂節奏</b><span>音樂科：節奏型與記譜，沿用節奏表演玩法</span></div>
+            <div><b>音樂節奏</b><span>音樂科：節奏型與記譜，沿用節奏表演玩法</span></div>
     </div>
   </section>
 
@@ -181,7 +182,7 @@ footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--sub);fon
 
 <script>
 (function(){
-const SUBJ={中文:'var(--g)',英文:'var(--e)',數學:'var(--m)',科學:'var(--o)',中史:'var(--a)',經濟:'var(--i)'};
+const SUBJ={中文:'var(--g)',英文:'var(--e)',數學:'var(--m)',地理:'var(--geo)',資訊科技:'var(--ict)',科學:'var(--o)',中史:'var(--a)',經濟:'var(--i)'};
 const WHO={G:['#FF8A1C','G'],O:['#10C77A','O'],A:['#1677E8','A'],I:['#F2B80F','I']};
 const GAMES=[
  {t:'魚我所欲也',s:'中文',lv:'中學 DSE 範文',m:'RPG 冒險',who:'G',min:'15 分鐘',u:'games/fish/',d:'陪寒門士子赴京，在市集、茶亭、饑荒村口和豪宅之間，一次次在生與義之間抉擇。',l:['舍生取義的論證層次','類比與假設推論']},
@@ -191,6 +192,8 @@ const GAMES=[
  {t:'山居秋暝',s:'中文',lv:'中學 DSE 範文',m:'節奏表演',who:'O',min:'12 分鐘',u:'games/shanju/',d:'跟著古琴節拍朗誦王維名作：守住二三停頓、選對韻腳、配對對仗，每唸好一句，山中的雨、月、泉、竹、蓮就活過來。',l:['五言律詩的節奏與押韻','對仗與意象']},
  {t:'HK Buddy',s:'英文',lv:'初中英國語文',m:'對話闖關',who:'O',min:'20 分鐘',u:'games/hkbuddy/',d:'帶交換生 Sam 遊香港：在茶餐廳點餐、在港鐵站指路、在天星小輪介紹維港、在街市講價。',l:['得體的英語應對','聆聽與（可選）開口說話']},
  {t:'地盤三視圖',s:'數學',lv:'初中數學',m:'建造工坊',who:'I',min:'20 分鐘',u:'games/site/',d:'在香港地盤操控塔式起重機，按工程師的三視圖藍圖砌出結構，再計算體積和要髹油的面積。',l:['正視圖、側視圖、俯視圖','體積與外露表面面積']},
+ {t:'翠溪考察',s:'地理',lv:'初中地理',m:'探索漫遊',who:'G',min:'25 分鐘',u:'games/river/',d:'沿一條香港河流由山走到海：辨認瀑布、壺穴、曲流和泥灘，親手量度河寬、水深、流速和石塊，再用自己的數據分析河流的變化。',l:['上游、中游、下游的特徵','實地考察與數據分析']},
+ {t:'送貨機械人',s:'資訊科技',lv:'初中資訊及通訊科技',m:'建造工坊（編程）',who:'I',min:'20 分鐘',u:'games/coding/',d:'用積木編寫程式，指揮機械人在香港街道上送貨：繞過街檔和工地、在紅綠燈前等候、修正同學寫錯的程式。',l:['順序、重複、條件','除錯與精簡程式']},
  {t:'實驗室安全',s:'科學',lv:'初中科學',m:'RPG 冒險',who:'G',min:'15 分鐘',u:'games/labsafety/',d:'溶液濺眼、加熱試管、打破燒杯、火警鐘響，四場實驗室意外由你判斷怎樣處理。',l:['洗眼、加熱、清理碎玻璃的正確做法','火警疏散']},
  {t:'浮與沉',s:'科學',lv:'小學科學科',m:'模擬實驗室',who:'O',min:'20 分鐘',u:'games/floatsink/',d:'把東西放進水缸、捏泥膠船、一匙匙加鹽，先預測再動手，看看結果是否如你所想。',l:['物料、形狀、液體與浮沉','公平測試']},
  {t:'赤壁疑案',s:'中史',lv:'初中中國歷史',m:'偵探查案',who:'A',min:'20 分鐘',u:'games/chibi/',d:'草船借箭是真的嗎？走訪茶館、藏書閣和赤壁江邊，用史料在公堂上拆穿說書人。',l:['分辨史實與小說','史料的時間、性質與立場']},
